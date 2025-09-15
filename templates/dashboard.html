@@ -15,13 +15,18 @@
             border-radius: 8px;
             padding: 20px;
             margin-bottom: 20px;
-        }</style>
+        }
+  .nav-link {
+  white-space: nowrap;   /* prevents line break */
+  margin-left: 15px;     /* adds spacing */
+}</style>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand text-white" href="{{ url_for('dashboard') }}">Elfit Arabia Client Dashboard</a>
         </div>
+    <a class="nav-link text-white" href="{{ url_for('my_orders') }}">My Orders</a>
   <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
 </nav>
 
@@ -53,10 +58,8 @@
                                         </div>
                                         {% endfor %}
                                     {% endif %}
-
                                     {% if product.rate %}
                                     <p class="mb-2 text-white"><strong>More Details:</strong>
-
                                         <a href=" {{ product.rate }} "> {{ product.rate }} </a>
                                     </p>
                                     {% endif %}
@@ -97,8 +100,6 @@
     {% endfor %}
 </div>
 </div>
-
-
 <div class="modal fade" id="orderModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content" style="background-color:#2a3b2f; color:white;">

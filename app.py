@@ -4,6 +4,8 @@ from email.mime.text import MIMEText
 from dotenv import load_dotenv
 from datetime import datetime
 from werkzeug.utils import secure_filename
+from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
 load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_APP_SECRET_KEY")
@@ -163,13 +165,11 @@ def edit_client_route(client_id):
         session.clear()
         flash("Please login to access the admin panel")
         return redirect(url_for("login"))
-
     user_email = session.get("user_email")
     if not user_email or not is_admin_in_db(user_email):
         session.clear()
         flash("Admin access required")
         return redirect(url_for("login"))
-
     return redirect(url_for("manage_clients", edit=client_id))
 
 # Add these new routes after your existing manage_clients route:
@@ -248,12 +248,6 @@ def delete_client_route(client_id):
     flash("Client deleted successfully!")
     return redirect(url_for("manage_clients"))
 
-
-
-
-
-
-
 def is_authorized_client(email):
     """Check if the email belongs to an authorized client"""
     conn = sqlite3.connect(DATABASE)
@@ -262,7 +256,6 @@ def is_authorized_client(email):
     result = cursor.fetchone()
     conn.close()
     return result is not None or email in AUTHORIZED_CLIENTS
-
 
 def send_email(receiver, content, subject="Elfit Arabia Login OTP"):
     """Send email with customizable content"""
@@ -304,12 +297,6 @@ Elfit Arabia Team"""
     send_email(receiver, content, "Elfit Arabia - Access Denied")
 
 
-
-
-
-
-
-
 @app.route("/admin/manage-products")
 def manage_products():
     if not session.get("authenticated"):
@@ -323,7 +310,7 @@ def manage_products():
     all_categories = [
         "Winches", "Cable Drum Trailers", "Rollers", "Cable Drum Lifting Jacks", "Cable Locators", "Reeling Machine",
         "Cable Pulling Grips & Swivel Link", "Duct Rods", "Hydraulic Cutting and Crimping Tools"
-        , "Warning Tapes", "Manhole", "Ropes", "Duct",
+        ,"Warning Tapes", "Manhole", "Ropes", "Duct",
         "Telecom", "Fiber Optic", "Electrical", "Solar", "Pipes",
         "Other Products"
     ]
@@ -918,7 +905,7 @@ def dashboard():
 
     all_categories = [
         "Winches", "Cable Drum Trailers","Rollers","Cable Drum Lifting Jacks","Cable Locators","Reeling Machine",
-        "Cable Pulling Grips & Swivel Link","Duct Rods", "Hydraulic Cutting and Crimping Tools"
+        "Cable Pulling Grips & Swivel Link","Duct Rods", "Hydraulic Cutting and Crimping Tools",
         "Warning Tapes", "Manhole", "Ropes", "Duct",
         "Telecom", "Fiber Optic", "Electrical", "Solar", "Pipes", "Other Products"
     ]
@@ -980,6 +967,68 @@ def delete_order(order_id):
 
     flash("Order deleted successfully!", "success")
     return redirect(url_for("client_orders"))
+
+@app.route("/my-orders")
+def my_orders():
+    if not session.get("authenticated"):
+        flash("Please login to view your orders", "warning")
+        return redirect(url_for("login"))
+
+    user_email = session.get("user_email")
+
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT * FROM orders WHERE user_email = ? ORDER BY created_at DESC",
+        (user_email,)
+    )
+    orders = cursor.fetchall()
+    conn.close()
+
+    return render_template("my_orders.html", orders=orders)
+
+@app.route("/admin/send-quotation", methods=["POST"])
+def send_quotation():
+    if not session.get("authenticated") or not session.get("is_admin"):
+        flash("Admin access required", "danger")
+        return redirect(url_for("login"))
+    order_id = request.form.get("id","").strip()
+    client_email = request.form.get("user_email","").strip()
+    message_body = request.form["message"]
+    attachment = request.files.get("attachment")
+    print("=== FORM DEBUG ===")
+    print("Request method:", request.method)
+    print("All form data:", dict(request.form))
+    print("All form keys:", list(request.form.keys()))
+    print("=== END DEBUG ===")
+    if not client_email or not order_id:
+        flash("Missing recipient information.", "danger")
+        return redirect(url_for("client_orders"))
+    email_user = os.getenv("SENDER_GMAIL_ADDRS")
+    email_pass = os.getenv("GMAIL_APP_PASSWORD_1")
+    msg = MIMEMultipart()
+    msg["Subject"] = f"Quotation for Order #{order_id}"
+    msg["From"] = email_user
+    msg["To"] = client_email
+    msg.attach(MIMEText(message_body, "plain"))
+    if attachment and attachment.filename:
+        file_data = attachment.read()
+        part = MIMEApplication(file_data, Name=attachment.filename)
+        part["Content-Disposition"] = f'attachment; filename="{attachment.filename}"'
+        msg.attach(part)
+    try:
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+            server.starttls()
+            server.login(email_user, email_pass)
+            server.send_message(msg)
+        flash(f"Quotation sent to {client_email}", "success")
+    except Exception as e:
+        app.logger.error("Error sending quotation: %s", e)
+        flash("Failed to send quotation. Check server logs.", "danger")
+    return redirect(url_for("client_orders"))
+
+
 
 @app.route("/reports")
 def reports():

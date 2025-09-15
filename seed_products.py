@@ -1,7 +1,6 @@
 import sqlite3, json
 from app import DATABASE
 
-
 with open("product_data.json", "r") as f:
     products = json.load(f)
 
