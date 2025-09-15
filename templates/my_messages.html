@@ -25,6 +25,26 @@
       <a class="nav-link text-white" href="{{ url_for('logout') }}">Logout</a>
   </div>
 </nav>
+<div class="container">
+  <div class="section">
+    <h2>My Messages</h2>
+    {% if messages %}
+      <div class="list-group">
+        {% for msg in messages %}
+        <div class="list-group-item mb-3" style="background:#3a5e46; color:white;">
+          <div class="d-flex justify-content-between">
+            <h5>{{ msg[2] }}: {{ msg[5] }} ({{ msg[6] }})</h5> <!-- subject -->
+            <small>{{ msg[7] }}</small> <!-- created_at -->
+          </div>
+          <p class="mb-1">{{ msg[3] }}</p> <!-- body -->
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-muted">No messages yet.</p>
+    {% endif %}
+  </div>
+</div>
 
 
 

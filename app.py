@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, flash, session, redirect, url_for,jsonify
+from flask import (Flask, render_template, request,
+                   flash, session, redirect, url_for,jsonify,send_from_directory)
 import sqlite3, random, smtplib, os,json
 from email.mime.text import MIMEText
 from dotenv import load_dotenv
@@ -20,6 +21,9 @@ MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5MB max file size
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+
+
 
 def init_db():
     conn = sqlite3.connect(DATABASE)
@@ -92,11 +96,28 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
         """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        order_id INTEGER,
+        user_email TEXT,
+        subject TEXT,
+        body TEXT,
+        attachment_name TEXT,
+        order_name TEXT,
+    order_quantity TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (order_id) REFERENCES orders(id)
+    )
+    """)
     conn.commit()
     conn.close()
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
 
 
 def add_client(email, client_name, phone, address, company):
@@ -133,6 +154,7 @@ def delete_client(client_id):
     cursor.execute("DELETE FROM users WHERE id = ? AND user_type = 'client'", (client_id,))
     conn.commit()
     conn.close()
+
 
 def get_client_by_id(client_id):
     """Get a single client by ID"""
@@ -997,6 +1019,7 @@ def send_quotation():
     client_email = request.form.get("user_email","").strip()
     message_body = request.form["message"]
     attachment = request.files.get("attachment")
+
     print("=== FORM DEBUG ===")
     print("Request method:", request.method)
     print("All form data:", dict(request.form))
@@ -1005,6 +1028,13 @@ def send_quotation():
     if not client_email or not order_id:
         flash("Missing recipient information.", "danger")
         return redirect(url_for("client_orders"))
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute("SELECT product_name, quantity FROM orders WHERE id = ?", (order_id,))
+    order_row = cursor.fetchone()
+    order_name = order_row[0] if order_row else None
+    order_quantity = order_row[1] if order_row else None
+    conn.close()
     email_user = os.getenv("SENDER_GMAIL_ADDRS")
     email_pass = os.getenv("GMAIL_APP_PASSWORD_1")
     msg = MIMEMultipart()
@@ -1012,16 +1042,37 @@ def send_quotation():
     msg["From"] = email_user
     msg["To"] = client_email
     msg.attach(MIMEText(message_body, "plain"))
+    attachment_name = None
     if attachment and attachment.filename:
-        file_data = attachment.read()
-        part = MIMEApplication(file_data, Name=attachment.filename)
-        part["Content-Disposition"] = f'attachment; filename="{attachment.filename}"'
+        attachment_name = attachment.filename
+        filepath = os.path.join(UPLOAD_FOLDER, attachment_name)
+        attachment.save(filepath)
+        file_data = open(filepath, "rb").read()
+        part = MIMEApplication(file_data, Name=attachment_name)
+        part["Content-Disposition"] = f'attachment; filename="{attachment_name}"'
         msg.attach(part)
     try:
         with smtplib.SMTP("smtp.gmail.com", 587) as server:
             server.starttls()
             server.login(email_user, email_pass)
             server.send_message(msg)
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        cursor.execute("""
+                    INSERT INTO messages (order_id, user_email, subject, body, attachment_name,
+                    order_name, order_quantity)
+                    VALUES (?, ?, ?, ?, ?,?,?)
+                """, (
+            order_id,
+            client_email,
+            f"Quotation for Order #{order_id}",
+            message_body,
+            attachment.filename if attachment and attachment.filename else None,
+            order_name,
+            order_quantity
+        ))
+        conn.commit()
+        conn.close()
         flash(f"Quotation sent to {client_email}", "success")
     except Exception as e:
         app.logger.error("Error sending quotation: %s", e)
@@ -1029,6 +1080,27 @@ def send_quotation():
     return redirect(url_for("client_orders"))
 
 
+
+
+@app.route("/my-messages")
+def my_messages():
+    if not session.get("authenticated"):
+        flash("Please login to access messages", "warning")
+        return redirect(url_for("login"))
+
+    user_email = session.get("user_email")
+
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute("""
+            SELECT id, order_id, subject, body, attachment_name,order_name, order_quantity, created_at
+            FROM messages
+            WHERE user_email = ?
+            ORDER BY created_at DESC
+        """, (user_email,))
+    messages = cursor.fetchall()
+    conn.close()
+    return render_template("my_messages.html",messages=messages)
 
 @app.route("/reports")
 def reports():
