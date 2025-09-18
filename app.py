@@ -1,9 +1,10 @@
 from flask import (Flask, render_template, request,
-                   flash, session, redirect, url_for,jsonify,send_from_directory)
+                   flash, session, redirect, url_for,jsonify)
 import sqlite3, random, smtplib, os,json
 from email.mime.text import MIMEText
 from dotenv import load_dotenv
 from datetime import datetime
+from urllib.parse import quote
 from werkzeug.utils import secure_filename
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
@@ -21,8 +22,6 @@ MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5MB max file size
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
-
 
 
 def init_db():
@@ -84,7 +83,6 @@ def init_db():
     main_admin_email = os.getenv("ADMIN_EMAIL")
     if main_admin_email:
         cursor.execute("INSERT OR IGNORE INTO admins (email) VALUES (?)", (main_admin_email.lower(),))
-
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS orders (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -385,7 +383,6 @@ def add_product():
     if not session.get("is_admin") or not is_admin_in_db(session.get("user_email")):
         flash("Admin access required")
         return redirect(url_for("dashboard"))
-
     if request.method == 'POST':
         try:
             product_name = request.form.get('product_name')
@@ -394,7 +391,6 @@ def add_product():
             stock_status = request.form.get('stock_status')
             option_names = request.form.getlist('product_options[]')
             option_values = request.form.getlist('option_values[]')
-
             options = {}
             for i, name in enumerate(option_names):
                 if name.strip() and i < len(option_values) and option_values[i].strip():
@@ -1080,8 +1076,6 @@ def send_quotation():
     return redirect(url_for("client_orders"))
 
 
-
-
 @app.route("/my-messages")
 def my_messages():
     if not session.get("authenticated"):
@@ -1105,6 +1099,78 @@ def my_messages():
 @app.route("/reports")
 def reports():
     return render_template("reports.html")
+
+@app.route("/place-order/<int:message_id>")
+def finalize_order(message_id):
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM messages WHERE id=?", (message_id,))
+    msg = cursor.fetchone()
+    if msg:
+        user_email=msg[2]
+        quotation=msg[4]
+        order_name=msg[6]
+        order_quantity=msg[7]
+        try:
+            msg_out = MIMEMultipart()
+            msg_out["From"] = os.getenv('SENDER_GMAIL_ADDRS')
+            msg_out["To"] = os.getenv('ADMIN_EMAIL')
+            msg_out["Subject"] = f"New Order Confirmation - {order_name} ({order_quantity})"
+            text=f"""
+Hello Admin,
+
+Client {user_email} has confirmed an order.
+The Order: {order_name} 
+Order Quantity: {order_quantity} 
+The Quotation sent: '{quotation}'
+Placed at: {datetime.now()}
+- Elfit Arabia System          
+"""
+            msg_out.attach(MIMEText(text, "plain"))
+            with smtplib.SMTP("smtp.gmail.com", 587) as server:
+                server.starttls()
+                server.login(os.getenv("SENDER_GMAIL_ADDRS"), os.getenv("GMAIL_APP_PASSWORD_1"))
+                server.sendmail(os.getenv("SENDER_GMAIL_ADDRS"), os.getenv("ADMIN_EMAIL"), msg_out.as_string())
+            flash("Order placed and email sent to admin!")
+        except Exception as e:
+            flash(f"Email failed to send: {str(e)}")
+    else:
+        flash("order does not exist anymore")
+    return redirect(url_for("my_messages"))
+
+@app.route("/contact-us")
+def contact_us():
+    admin_whatsapp = os.getenv("ADMIN_WHATSAPP")
+    wa_link = f"https://web.whatsapp.com/send?phone={admin_whatsapp}"
+    return redirect(wa_link)
+
+
+
+
+@app.route("/talk-further/<int:message_id>")
+def talk_further(message_id):
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM messages WHERE id=?", (message_id,))
+    msg = cursor.fetchone()
+    if not msg:
+        flash("Message not found")
+        return redirect(url_for("my_messages"))
+    user_email = msg[2]
+    order_id=msg[1]
+    order_name = msg[6]
+    order_quantity = msg[7]
+    admin_whatsapp = os.getenv("ADMIN_WHATSAPP")
+    conn.close()
+    text = f"""Hello Admin, I want to discuss further about my PLACED ORDER.\n\n"
+           Order ID: {order_id}\n
+           Order: {order_name} ({order_quantity})\n" 
+           f"My Email: {user_email}"""
+    encoded_text = quote(text)
+    wa_link = f"https://web.whatsapp.com/send?phone={admin_whatsapp}&text={encoded_text}"
+    return redirect(wa_link)
+
+
 @app.route("/logout")
 def logout():
     """Logout route - clears session"""

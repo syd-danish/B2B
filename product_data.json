@@ -4,7 +4,7 @@
     "name": "Winch (3 Ton)",
     "category": "Winches",
     "options": {
-      "Pulling Tension": "30 KN",
+      "Pulling Tension": "30kn",
       "Engine Type": "Diesel, Water-Cooled",
       "Rope Speed": "0-70mtr/min",
       "Rope Diameter": "10mm",
@@ -21,7 +21,7 @@
     "name": "Winch (5 Ton)",
     "category": "Winches",
     "options": {
-      "Pulling Tension": "50 KN",
+      "Pulling Tension": "50kn",
       "Engine Type": "Diesel, Water-Cooled",
       "Rope Speed": "0-60mtr/min",
       "Rope Diameter": "12mm",
@@ -38,7 +38,7 @@
     "name": "Winch (10 Ton)",
     "category": "Winches",
     "options": {
-      "Pulling Tension": "100 KN",
+      "Pulling Tension": "100kn",
       "Engine Type": "Diesel, Water-Cooled",
       "Rope Speed": "0 - 40 m/min",
       "Rope Diameter": "16mm",
@@ -2348,6 +2348,209 @@
 "rate": "https://elfitarabia.com/solar/",
 "stock": "in_stock",
 "image": ""
+},
+  {
+"id": 184,
+"name": "CW1 (CLASS D 400) - Manhole Standard Etisalat",
+"category": "Manhole",
+"options": {
+"Clear Opening": "600 x 600 mm",
+"EN124 Class": "D 400"
+},
+"rate": "https://elfitarabia.com/manhole/",
+"stock": "in_stock",
+"image": ""
+},
+{
+"id": 185,
+"name": "CW2 (CLASS D 400) - Manhole Standard Etisalat",
+"category": "Manhole",
+"options": {
+"Clear Opening": "1224 x 700 mm",
+"EN124 Class": "D 400"
+},
+"rate": "https://elfitarabia.com/manhole/",
+"stock": "in_stock",
+"image": ""
+},
+{
+"id": 186,
+"name": "CW3 (CLASS D 400) - Manhole Standard Etisalat",
+"category": "Manhole",
+"options": {
+"Clear Opening": "1835 x 700 mm",
+"EN124 Class": "D 400"
+},
+"rate": "https://elfitarabia.com/manhole/",
+"stock": "in_stock",
+"image": ""
+},
+{
+"id": 187,
+"name": "CW4 (CLASS B 125, 150 KN TEST LOAD)- Manhole Standard Etisalat",
+"category": "Manhole",
+"options": {
+"Clear Opening": "600 x 600 mm",
+"EN124 Class": "D 400"
+},
+"rate": "https://elfitarabia.com/manhole/",
+"stock": "in_stock",
+"image": ""
+},
+{
+"id": 188,
+"name": "CW2 (CLASS D 400) - Manhole Standard Du",
+"category": "Manhole",
+"options": {
+"Clear Opening": "1224 x 700 mm",
+"EN124 Class": "D 400"
+},
+"rate": "https://elfitarabia.com/manhole/",
+"stock": "in_stock",
+"image": ""
+},
+{
+"id": 189,
+"name": "CW3 (CLASS D 400) - Manhole Standard Du",
+"category": "Manhole",
+"options": {
+"Clear Opening": "1835 x 700 mm",
+"EN124 Class": "D 400"
+},
+"rate": "https://elfitarabia.com/manhole/",
+"stock": "in_stock",
+"image": ""
+},
+{
+"id": 190,
+"name": "CW4 (CLASS B 125, 150 KN TEST LOAD) - Manhole Standard Du",
+"category": "Manhole",
+"options": {
+"Clear Opening": "912 x 452 mm",
+"EN124 Class": "B 125"
+},
+"rate": "https://elfitarabia.com/manhole/",
+"stock": "in_stock",
+"image": ""
+},
+{
+"id": 191,
+"name": "Manhole Step No. 1",
+"category": "Manhole",
+"options": {
+"Material": "Ductile Iron Grade 420-12",
+"Load": "6 KN",
+"Standard": "BS 1247 Part 1"
+},
+"rate": "https://elfitarabia.com/manhole/",
+"stock": "in_stock",
+"image": ""
+},
+{
+"id": 192,
+"name": "Ladder, Hooks and Bar",
+"category": "Manhole",
+"options": {
+"Material": "Mild Steel",
+"Protective Finish": "Hot dipped galvanised",
+"Standard Lengths": "2150, 2300, 2450, 2600, 2750, 3000, 3250, 3500, 3750"
+},
+"rate": "https://elfitarabia.com/manhole/",
+"stock": "in_stock",
+"image": ""
+},
+{
+"id": 193,
+"name": "Bearers, Bolts and Pins",
+"category": "Manhole",
+"options": {
+"Material": "Mild Steel Pressed Channel Bolts: Mild Steel Pins: High Tensile Steel Rod",
+"Protective Finish": "Hot dipped galvanised"
+},
+"rate": "https://elfitarabia.com/manhole/",
+"stock": "in_stock",
+"image": ""
+},
+{
+"id": 194,
+"name": "Iron Anchor No. 4",
+"category": "Manhole",
+"options": {
+"Material": "Mild Steel Bar, normalised at 650 degree C after forming",
+"Protective Finish": "Hot dipped galvanised"
+},
+"rate": "https://elfitarabia.com/manhole/",
+"stock": "in_stock",
+"image": ""
+},
+{
+"id": 195,
+"name": "Open Grip Cable Clamp",
+"category": "Pipes",
+"options": {
+"Sizes": "50mm, 75mm, 100mm",
+"Material": "Galvanized Steel"
+},
+"rate": "https://elfitarabia.com/pipes/",
+"stock": "in_stock",
+"image": ""
+},
+{
+"id": 196,
+"name": "Close Grip Cable Clamp",
+"category": "Pipes",
+"options": {
+"Sizes": "50mm, 75mm, 100mm",
+"Material": "Galvanized Steel"
+},
+"rate": "https://elfitarabia.com/pipes/",
+"stock": "in_stock",
+"image": ""
+},
+{
+"id": 197,
+"name": "Closed Type Pulling Grips",
+"category": "Cable Pulling Grips & Swivel Link",
+"options": {
+"Cable Diameter (mm): Break Ton": {
+"8-15": 0.8,
+"15-20": 1,
+"20-30": 3,
+"30-40": 4.5,
+"40-50": 5,
+"50-60": 5,
+"60-80": 5.75,
+"80-100": 6.25,
+"100-120": 6.75,
+"120-150": 7.5
+},
+"Material": "Galvanized Steel"
+},
+"rate": "https://elfitarabia.com/cable-pulling-grips-and-swivel-link/",
+"stock": "in_stock",
+"image": ""
+},
+  {
+"id": 198,
+"name": "Open Type Pulling Grips",
+"category": "Cable Pulling Grips & Swivel Link",
+"options": {
+"Cable Diameter (mm): Break Ton": {
+"8-15": 0.8,
+"15-20": 1,
+"20-30": 3,
+"30-40": 4.5,
+"40-50": 5,
+"50-60": 5,
+"60-80": 5.75,
+"80-100": 6.25,
+"100-120": 6.75,
+"120-150": 7.5
+},
+"Material": "Galvanized Steel"
+},
+"rate": "https://elfitarabia.com/cable-pulling-grips-and-swivel-link/",
+"stock": "in_stock",
+"image": ""
 }
-
 ]

@@ -219,8 +219,8 @@
                 <div class="list-group">
         {% for order in orders %}
         <div class="list-group-item list-group-item-action mb-2"
-             style="background:#3a5e46; color:white;padding-bottom: 10px ">
-            <div class="d-flex w-100 justify-content-between">
+             style="background:#3a5e46; color:white; padding-bottom: 10px ">
+            <div class="d-flex w-100 justify-content-between" style="padding-bottom: 10px">
                 <h5 class="mb-1">{{ order[7] }} ({{ order[3] }})</h5>
                 <small>{{ order[6] }}</small>
             </div>
@@ -231,7 +231,7 @@
             {% endif %}
              <form method="POST" action="{{ url_for('update_order', order_id=order[0]) }}" class="d-inline">
                 <select name="status" class="form-select form-select-sm d-inline w-auto" onchange="this.form.submit()">
-                    {% set statuses = ["received","quote sent","order placed","dispatched","delivered","cancelled"] %}
+                    {% set statuses = ["inquiry received","quote sent","order placed","dispatched","delivered","cancelled"] %}
                     {% for s in statuses %}
                         <option value="{{ s }}" {% if order[8] == s %}selected{% endif %}>{{ s|capitalize }}</option>
                     {% endfor %}
@@ -320,11 +320,7 @@
         });
         </script>
 
-
-
-
-
-        {% elif section == "manage-products" %}
+    {% elif section == "manage-products" %}
 <div class="section">
     <h2 style="padding-bottom: 15px">Manage Products</h2>
     {% for category in all_categories %}
