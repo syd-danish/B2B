@@ -2552,5 +2552,1126 @@
 "rate": "https://elfitarabia.com/cable-pulling-grips-and-swivel-link/",
 "stock": "in_stock",
 "image": ""
-}
+},
+  {
+    "id": 199,
+    "name": "Equal Tees",
+    "category": "Electrical",
+    "options": {
+      "Width (mm)": [100,150,200,250,300,400,500,600,700,800,900,1000,1100,1200]
+
+
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 200,
+    "name": "Crossovers - 4 way",
+    "category": "Electrical",
+    "options": {
+      "Width (mm)": [100,150,200,250,300,400,500,600,700,800,900,1000,1100,1200]
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 201,
+    "name": "Reducers",
+    "category": "Electrical",
+    "options": {
+      "Width (mm)": [100,150,200,250,300,400,500,600,700,800,900,1000,1100,1200]
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 202,
+    "name": "Equal Tees",
+    "category": "Electrical",
+    "options": {
+      "Width (mm)": [100,150,200,250,300,400,500,600,700,800,900,1000,1100,1200]
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 203,
+    "name": "Crossovers - 4 way",
+    "category": "Electrical",
+    "options": {
+       "Width (mm)": [100,150,200,250,300,400,500,600,700,800,900,1000,1100,1200]
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 204,
+    "name": "Reducers",
+    "category": "Electrical",
+    "options": {
+      "Width (mm)": [100,150,200,250,300,400,500,600,700,800,900,1000,1100,1200]
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 205,
+    "name": "Ladders",
+    "category": "Electrical",
+    "options": {
+      "Standards": "EN-10143, BSEN 1461:1999, BS-1449 Part 1, BS 729",
+      "Standard Finish": "Hot Dip Galvanized after manufacture – G",
+      "Other Finishes": "Pre Galvanized – PG, Stainless Steel – SS (BSEN 10088 Grade 1-4401)",
+      "Standard Length": "2.44 meters",
+      "Rung Thickness": "1.5mm – 2.0mm (LD MD 1 - 1.5mm)",
+      "Flange Height": "125mm (Heavy Duty), 100mm (Medium Duty), 50mm (Light Duty)"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 206,
+    "name": "Lengths",
+    "category": "Electrical",
+    "options": {
+      "Width (mm)": [100,150,200,250,300,400,500,600,700,800,900,1000,1100,1200]
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 207,
+    "name": "Couplers (set of 2 pieces to suit all sizes)",
+    "category": "Electrical",
+    "options": {
+      "Product Code": "CA 0191 A / CA 0193 A / CA 0192 A",
+      "Compatibility": "For all widths"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 208,
+    "name": "Inside Risers",
+    "category": "Electrical",
+    "options": {
+      "Width (mm)": "100-1200"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 209,
+    "name": "Outside Risers",
+    "category": "Electrical",
+    "options": {
+      "Width (mm)": [100,150,200,250,300,400,500,600,700,800,900,1000,1100,1200]
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 210,
+    "name": "Flat Bends 90°",
+    "category": "Electrical",
+    "options": {
+      "Width (mm)": [100,150,200,250,300,400,500,600,700,800,900,1000,1100,1200]
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+{
+    "id": 211,
+    "name": "Cable Tray Fittings - Heavy Duty",
+    "category": "Electrical",
+    "options": {
+      "Standards": "EN-10143, BSEN 1461:1999, BS-1449 Part 1, BS 729",
+      "Standard Finish": "Hot Dip Galvanized after manufacture – G",
+      "Other Finishes": "Pre Galvanized – PG, Stainless Steel – SS (BSEN 10088 Grade 1-4401), POWDER COATED - PC",
+      "Standard Length": "2.44 meters",
+      "Vertical Flange Height": "50 mm for HD, 25 for MD, 20 for LD",
+      "Width Range": "100 mm – 1150 mm"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 212,
+    "name": "Cable Tray Lengths",
+    "category": "Electrical",
+    "options": {
+      "Width and Thickness (mm)": {
+        "CA 0499 A / CA 0501 A / CA 0500 A": "100 x 1.2",
+        "CA 0510 A / CA 0512 A / CA 0511 A": "150 x 1.2",
+        "CA 0515 A / CA 0517 A / CA 0516 A": "200 x 1.2",
+        "CA 1312 A / CA 1309 A / CA 0522 A": "250 x 1.2",
+        "CA 1313 A / CA 1310 A / CA 0523 A": "300 x 1.2",
+        "CA 1314 A / CA 1311 A / CA 0528 A": "400 x 1.2",
+        "CA 0533 A / CA 0535 A / CA 0534 A": "500 x 1.2",
+        "CA 0542 A / CA 0544 A / CA 0543 A": "600 x 1.2",
+        "CA 0502 A / CA 0503 A / CA 1315 A": "100 x 1.5",
+        "CA 0518 A / CA 0519 A / CA 1316 A": "200 x 1.5",
+        "CA 0524 A / CA 0525 A / CA 1317 A": "300 x 1.5",
+        "CA 0529 A / CA 0530 A / CA 1318 A": "400 x 1.5",
+        "CA 0536 A / CA 0537 A / CA 1319 A": "500 x 1.5",
+        "CA 0545 A / CA 0546 A / CA 1320 A": "600 x 1.5",
+        "CA 0513 A / CA 0514 A / CA 1321 A": "150 x 2.0",
+        "CA 0520 A / CA 0522 A / CA 1322 A": "200 x 2.0",
+        "CA 0538 A / CA 0540 A / CA 1323 A": "500 x 2.0",
+        "CA 0526 A / CA 0528 A / CA 1324 A": "300 x 2.0",
+        "CA 0531 A / CA 0532 A / CA 1325 A": "400 x 2.0",
+        "CA 0547 A / CA 0548 A / CA 1326 A": "600 x 2.0",
+        "CA 0550 A / CA 0551 A / CA 1327 A": "700 x 2.0",
+        "CA 0553 A / CA 0554 A / CA 1328 A": "750 x 2.0",
+        "CA 0555 A / CA 0557 A / CA 1329 A": "800 x 2.0",
+        "CA 0558 A / CA 0560 A / CA 0559 A": "900 x 2.0",
+        "CA 0496 A / CA 0498 A / CA 0497 A": "1000 x 2.0",
+        "CA 0504 A / CA 0506 A / CA 0505 A": "1100 x 2.0",
+        "CA 0507 A / CA 0509 A / CA 0508 A": "1150 x 2.0"
+      }
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 213,
+    "name": "Cable Tray Couplers",
+    "category": "Electrical",
+    "options": {
+      "Product Code": "CA 0562 A / CA 0564 A / CA 0563 A",
+      "Compatibility": "For all widths"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },{
+    "id": 214,
+    "name": "U Bolt Rod Clamp",
+    "category": "Electrical",
+    "options": {
+      "Rod Dia and Hole Centers": {
+        "CL 0108 A": "5/8 inch (16mm) - 28mm hole centers",
+        "CL 0109 A": "3/4 inch (20mm) - 31mm hole centers",
+        "CL 0110 A": "1 inch (25mm) - 38mm hole centers"
+      }
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 215,
+    "name": "Rod to Cable Clamp (Type GUV)",
+    "category": "Electrical",
+    "options": {
+      "Rod Dia and Conductor Range": {
+        "RO 0001 A": "5/8 inch (16mm) - 16-70 conductor",
+        "RO 0002 A": "3/4 inch (20mm) - 16-70 conductor",
+        "RO 0003 A": "1 inch (25mm) - 16-70 conductor",
+        "RO 0004 A": "5/8 inch (16mm) - 70-150 conductor",
+        "RO 0005 A": "3/4 inch (20mm) - 70-150 conductor",
+        "RO 0006 A": "1 inch (25mm) - 70-150 conductor"
+      }
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 216,
+    "name": "Rod to Cable Lug Clamp",
+    "category": "Electrical",
+    "options": {
+      "Rod Type and Size": {
+        "RO 0018 A": "5/8 inch (16mm) - Copper Bonded",
+        "RO 0019 A": "5/8 inch (16mm) - Solid Copper",
+        "RO 0020 A": "3/4 inch (20mm) - Copper Bonded",
+        "RO 0021 A": "3/4 inch (20mm) - Solid Copper",
+        "RO 0022 A": "1 inch (25mm) - Copper Bonded",
+        "RO 0023 A": "1 inch (25mm) - Solid Copper"
+      }
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 217,
+    "name": "Test and Junction Clamps - Oblong Test and Junction Clamp",
+    "category": "Electrical",
+    "options": {
+      "Conductor Material and Tape Size": {
+        "OB 0002 A": "Copper - 26 x 8mm tape size",
+        "OB 0001 A": "Aluminium - 26 x 8mm tape size"
+      }
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 218,
+    "name": "Parts and Components",
+    "category": "Electrical",
+    "options": {
+      "Part Types and Sizes": {
+        "DR 0005 A": "Driving Stud - 16mm",
+        "DR 0006 A": "Driving Stud - 20mm",
+        "CO 0167 A": "Coupling Dowel - 16mm",
+        "CO 0168 A": "Coupling Dowel - 20mm",
+        "SP 0007 A": "Spike - 16mm",
+        "SP 0008 A": "Spike - 20mm"
+      }
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 219,
+    "name": "Rod to Tape Clamp",
+    "category": "Electrical",
+    "options": {
+      "Rod Dia, Max Conductor, and Size": [
+  "1/2inch/12.5/26x12",
+  "5/8inch/16/26x12",
+  "3/4inch/20/26x12",
+  "5/8inch/16/40x12",
+  "5/8inch/16/51x8",
+  "3/4inch/20/51x12",
+  "1/2inch/12.5/26x20",
+  "5/8inch/16/26x18",
+  "3/4inch/20/26x10",
+  "1inch/25/26x10"
+]
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 220,
+    "name": "Rod to Conductor Clamp",
+    "category": "Electrical",
+    "options": {
+      "Rod Dia and Conductor Range": [
+        "3/8 9.5 inch/mm - 6-35 conductor range",
+        "1/2 12.5 inch/mm - 16-50 conductor range",
+        "5/8 16 inch/mm - 16-70 conductor range",
+        "3/4 20 inch/mm - 16-95 conductor range",
+        "1.25 inch/mm - 70-120 conductor range"
+      ],
+      "Note": "Suitable for use with 8mm solid circular copper conductor"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 221,
+    "name": "Earth Plate - Solid Copper",
+    "category": "Electrical",
+    "options": {
+      "Sizes Available": ["500 x 500 x 1.5mm","600 x 600 x 1.5mm","900 x 900 x 1.5mm",
+        "500 x 500 x 3mm","600 x 600 x 3mm","600 x 600 x 3mm"],
+      "Note": "Other sizes on request"
+      },
+
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 222,
+    "name": "Earth Plate - Lattice Copper",
+    "category": "Electrical",
+    "options": {
+      "Sizes Available": [
+        "500 x 500 x 3mm",
+        "600 x 600 x 3mm",
+        "900 x 900 x 3mm"
+      ],
+      "Note": "Other sizes on request"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 223,
+    "name": "Copper Rod",
+    "category": "Electrical",
+    "options": {
+      "Rod Specifications": ["16mm dia - 1200mm length","16mm dia - 1500mm length",
+         "16mm dia - 3000mm length",
+        "20mm dia - 1200mm length",
+        "20mm dia - 1500mm length",
+        "20mm dia - 3000mm length"],
+      "Note": "Other sizes on request"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 224,
+    "name": "Copper Bonded Earth Rod",
+    "category": "Electrical",
+    "options": {
+      "Rod Specifications": [
+        "16mm dia - 1200mm length", "16mm dia - 1500mm length",
+        "16mm dia - 2400mm length", "16mm dia - 3000mm length",
+        "20mm dia - 1200mm length", "20mm dia - 1500mm length",
+        "20mm dia - 2400mm length", "20mm dia - 3000mm length",
+        "20mm dia - 3600mm length"
+      ],
+      "Note": "Other sizes on request"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 225,
+    "name": "Cable Saddle",
+    "category": "Electrical",
+    "options": {
+      "Material and Conductor Diameter": ["GM - 16mm conductor","GM - 25mm conductor",
+        "GM - 50mm conductor","GM - 70mm conductor","GM - 90mm conductor"]
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 226,
+    "name": "Tape Clip",
+    "category": "Electrical",
+    "options": {
+      "Material, Tape Size, and Fixing Centers": [
+  "GM/20x3/41.5mm",
+  "GM/25x3/47mm",
+  "Aluminium/20x3/41.5mm",
+  "Aluminium/25x3/47mm"
+],
+      "Description": "Tape Clip is used for supporting flat tape to any structure"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 227,
+    "name": "DC Tape Clip",
+    "category": "Electrical",
+    "options": {
+      "Clip Material and Tape Diameter": ["20 x 3","25 x 3","25 x 4","25 x 6","31 x 3",
+        "38 x 3","38 x 5","38 x 6","50 x 3","50 x 4","50 x 6","25 x 3","25 x 6"]
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 228,
+    "name": "Copper Tapes & Braids",
+    "category": "Electrical",
+    "options": {
+      "Tape and Braid size": [
+        "12.5 x 1.5", "12.5 x 3.0", "12.5 x 4.0", "12.5 x 5.0", "12.5 x 6.0", "20 x 1.5",
+        "20 x 3.0", "20 x 4.0", "20 x 5.0", "20 x 6.0",
+        "25 x 1.5", "25 x 3.0", "25 x 4.0", "25 x 5.0", "25 x 6.0",
+        "31 x 1.5", "31 x 3.0", "31 x 4.0", "31 x 5.0", "31 x 6.0",
+        "38 x 1.5", "38 x 3.0", "38 x 4.0", "38 x 5.0", "38 x 6.0",
+        "50 x 1.5", "50 x 3.0", "50 x 4.0", "50 x 5.0", "50 x 6.0"
+      ],
+      "Standards": "High conductivity annealed copper Tapes to BS 1432-C101 and flexible copper Braids to BS 4109 – C101 are available in tinned and copper color"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 229,
+    "name": "One Hole Cable Clip - Clips & Clamps Fixing",
+    "category": "Electrical",
+    "options": {
+      "Conductor (Copper) (mm)": ["16mm","25mm","35mm","50mm","70mm","90mm"],
+      "Note": "Other sizes and types can be made on request"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+{
+    "id": 230,
+    "name": "Plate Type Test Clamp",
+    "category": "Electrical",
+    "options": {
+      "Conductor Material and Max Tape Size": {
+        "PL 0001 A": "Copper - 26 x 12mm"
+      }
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 231,
+    "name": "Screw Down Test Clamp",
+    "category": "Electrical",
+    "options": {
+      "Conductor Material and Max Tape Size": [
+        "Copper - 26 x 8mm"
+      ]
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 232,
+    "name": "Disconnecting Links",
+    "category": "Electrical",
+    "options": {
+      "Dimensions (Length x Width x Height)": {
+        "DJ 0018 A": "125 x 90 x 90mm"
+      }
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 233,
+    "name": "Six way Earth Bar with Single Disconnecting Link",
+    "category": "Electrical",
+    "options": {
+      "Dimensions (Length x Width x Height)": {
+        "SI 0004 A": "575 x 90 x 96mm"
+      }
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 234,
+    "name": "Six way Earth Bar with Twin Disconnecting Link",
+    "category": "Electrical",
+    "options": {
+      "Dimensions (Length x Width x Height)": {
+        "SI 0005 A": "650 x 90 x 96mm"
+      }
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 235,
+    "name": "Six way Earth Bar",
+    "category": "Electrical",
+    "options": {
+      "Dimensions (Length x Width x Height)": {
+        "SI 0003 A": "500 x 90 x 90mm"
+      }
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 236,
+    "name": "Swan-Neck Link",
+    "category": "Electrical",
+    "options": {
+      "Dimensions (Length x Width x Height)": {
+        "SW 0001 A": "400 x 50 x 36mm"
+      }
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 237,
+    "name": "Split Bolt Connector - Line Taps",
+    "category": "Electrical",
+    "options": {
+      "Conductor and Bolt Specifications (conductor: bolt diameter)": {
+        "10mm²": "4.5mm",
+        "16mm²":"6mm",
+        "25mm²":"6.9mm",
+        "32mm²":"8.1mm",
+        "50mm²":"9.7mm",
+        "70mm²":"11.2mm",
+        "95mm²":"13.6mm",
+        "120mm²":"15mm",
+        "150mm²":"16.6mm",
+        "185mm²":"18.2mm",
+        "240mm²":"21.4mm",
+        "300mm²":"23.7mm",
+        "400mm²":"26.2mm",
+        "500mm²":"30.1mm"
+      },
+      "Material": "High strength corrosion resistant Bronze alloy",
+      "Application": "Used for conductor connections"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 238,
+    "name": "C Crimp Connector",
+    "category": "Electrical",
+    "options": {
+      "Conductor Section Dimensions": {
+        "CC 0005 A": "25mm² main - 16-25mm² tap - 20mm B - 16mm L",
+        "CC 0006 A": "35mm² main - 25-35mm² tap - 26mm B - 22mm L",
+        "CC 0007 A": "50mm² main - 35mm² tap - 28mm B - 23mm L",
+        "CC 0008 A": "50mm² main - 50mm² tap - 28mm B - 23mm L"
+      },
+      "Material": "Electrolytic Copper",
+      "Application": "Used in overhead line tapping, dead ending and earthing applications"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  }
+  ,
+  {
+    "id": 239,
+    "name": "Square Tape Clamp",
+    "category": "Electrical",
+    "options": {
+      "Material and Conductor Size": {
+        "SQ 0012 A": "GM - 25 x 3mm conductor",
+        "SQ 0013 A": "GM - 25 x 6mm conductor",
+        "SQ 0014 A": "GM - 50 x 6mm conductor",
+        "SQ 0011 A": "Aluminium - 25 x 3mm conductor"
+      }
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 240,
+    "name": "Hard Drawn Copper Bar",
+    "category": "Electrical",
+    "options": {
+      "Conductor Sizes": ["25 x 3mm","25 x 6mm","25 x 10mm","38 x 6mm","38 x 10mm","50 x 3mm","50 x 6mm","50 x 10mm"],
+      "Standards": "High Conductivity Copper Bars to BS1433/BS 2874 – C101",
+      "Note": "Any other size can be supplied on request"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 241,
+    "name": "Air Terminal Base",
+    "category": "Electrical",
+    "options": {
+      "Material, Rod Dia, Thread, and Tape Width": {
+        "AI 0002 A": "Copper/GM - 15mm rod dia - 16mm thread - 25mm tape width",
+        "AI 0001 A": "Aluminium - 15mm rod dia - 16mm thread - 25mm tape width"
+      }
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 242,
+    "name": "Ridge Saddle",
+    "category": "Electrical",
+    "options": {
+      "Material, Rod Dia, Thread, and Tape Width": {
+        "RI 0003 A": "Copper/GM - 15mm rod dia - 16mm thread - 31mm tape width"
+      }
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 243,
+    "name": "Tower Earth Clamps",
+    "category": "Electrical",
+    "options": {
+      "Material, Conductor Size Range, and Channel Thickness": {
+        "TO 0028 A": "GM - 16-70mm² conductor - 10mm channel thickness",
+        "TO 0030 A": "GM - 70-120mm² conductor - 10mm channel thickness",
+        "TO 0289 A": "GM - 25-50mm² conductor - 10mm channel thickness"
+      }
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 244,
+    "name": "Flexible Copper Earth Bond",
+    "category": "Electrical",
+    "options": {
+      "Braid Dimensions, Hole Size, and Hole Centers": {
+        "FL 0052 A": "25 x 3.5mm braid - 10mm hole size - 200mm hole centers"
+      }
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 245,
+    "name": "Neutral Links",
+    "category": "Electrical",
+    "options": {
+      "Product Code": "NE 0002 A",
+      "Material": "High conductivity Brass",
+      "Finishes": "Brass colour, Tin plated, and Nickel plated"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 246,
+    "name": "Terminal Blocks",
+    "category": "Electrical",
+    "options": {
+      "Product Code": "TE 0005 A",
+      "Material": "High conductivity Brass",
+      "Finishes": "Brass/Tin plated color"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 247,
+    "name": "Earthing Blocks",
+    "category": "Electrical",
+    "options": {
+      "Product Codes and Sizes": {
+        "EA 0083 A": "4 Ways",
+        "EA 0086 A": "8 Ways"
+      },
+      "Material": "Brass with tin plating"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 248,
+    "name": "Taper Pointed Rod",
+    "category": "Electrical",
+    "options": {
+      "Material/Rod Length/Rod Dia/Thread Dia": [
+        "Copper/500mm length/15mm rod dia/16mm thread dia",
+        "Copper/1000mm length/15mm rod dia/16mm thread dia",
+        "Copper/2000mm length/15mm rod dia/16mm thread dia",
+        "Aluminium/500mm length/15mm rod dia/16mm thread dia"
+      ]
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 249,
+    "name": "Multiple Point",
+    "category": "Electrical",
+    "options": {
+      "Material and Rod Diameter": {
+        "MU 0010 A": "Copper - 15mm rod diameter"
+      }
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 250,
+    "name": "Channels and Fittings - Steel Channels",
+    "category": "Electrical",
+    "options": {
+      "Channel Specifications (height/width/thickness/weight)": [
+  "82.0mm/41.0mm/12Ga/4.54kg/m",
+  "61.5mm/41.0mm/12Ga/3.67kg/m",
+  "41.0mm/41.0mm/12Ga/2.83kg/m",
+  "41.0mm/41.0mm/14Ga/2.08kg/m",
+  "25.0mm/41.0mm/12Ga/2.14kg/m",
+  "20.6mm/41.0mm/12Ga/1.89kg/m",
+  "20.6mm/41.0mm/14Ga/1.44kg/m"
+],
+      "Material": "Low carbon steel strips ASTM A570 Grade 33 (12Ga/14Ga) and ASTM A611 Grade C (16Ga)",
+      "Standard Length": "10' (3.05mts) with tolerance +/- 3.2mm",
+      "Finish Options": "S (Slotted), G (Galvanised), PG (Pre Galvanised), PC (Powder Coated)",
+      "Note": "Other lengths available on request"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 251,
+    "name": "Channel Nuts",
+    "category": "Electrical",
+    "options": {
+      "Nut types": ["Nut without Spring","Spring Nut Large",
+        "Spring Nut Short","Stud Nut without Spring","Stud Nut Large","Stud Nut Short"],
+      "Sizes": ["6mm","8mm","10mm","12mm"]
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 252,
+    "name": "Channel Fittings - Inside Risers",
+    "category": "Electrical",
+    "options": {
+      "Width (H.D/M.D/L.D) (mm)": [100,150,200,250,300,400,500,600,700,800,900,1000,1100,1150]
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 253,
+    "name": "Channel Fittings - Outside Risers",
+    "category": "Electrical",
+    "options": {
+      "Width (H.D/M.D/L.D) (mm)": [100,150,200,250,300,400,500,600,700,800,900,1000,1100,1150]
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 254,
+    "name": "Channel Fittings - Equal Tees",
+    "category": "Electrical",
+    "options": {
+      "Width (H.D/M.D/L.D) (mm)": [100,150,200,250,300,400,500,600,700,800,900,1000,1100,1150]
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 255,
+    "name": "Channel Fittings - Crossovers",
+    "category": "Electrical",
+    "options": {
+      "Width (H.D/M.D/L.D) (mm)": [100,150,200,250,300,400,500,600,700,800,900,1000,1100,1500]
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 256,
+    "name": "Channel Fittings - Bends 90°",
+    "category": "Electrical",
+    "options": {
+      "Width Options (H.D/M.D/L.D)": [
+        "100mm",
+        "150mm", "200mm", "250mm", "300mm",
+        "400mm", "500mm",
+        "600mm", "700mm", "800mm", "900mm",
+        "1000mm", "1100mm", "1150mm"
+      ]
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 257,
+    "name": "Channel Fittings - Reducers",
+    "category": "Electrical",
+    "options": {
+      "Width (H.D/M.D/L.D) (mm)": [100,150,200,250,300,400,500,600,700,800,900,1000,1100,1150]
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 258,
+    "name": "Channel Straps - Thinwall Conduit (EMT) Clamp",
+    "category": "Electrical",
+    "options": {
+      "Conduit Size, Material Thickness, and Design Load": [
+        "3/8\"/16Ga (1.5mm)/400 lbs",
+        "1/2\"/16Ga (1.5mm)/400 lbs",
+        "3/4\"/16Ga (1.5mm)/400 lbs",
+        "1\"/14Ga (1.9mm)/600 lbs",
+        "1-1/4\"/14Ga (1.9mm)/600 lbs",
+        "1-1/2\"/12Ga (2.6mm)/800 lbs",
+        "2\"/12Ga (2.6mm)/800 lbs"
+      ],
+      "Application": "For Thinwall (EMT), I.M.C., Rigid Conduit or Pipe",
+      "Standard Finish": "Zinc Plated / Nickel Plated",
+      "Finish Options": "HG (Hot Dip Galvanized), EG (Electro Galvanized), PG (Pre Galvanized), P (PVC coated), V (Vibra cushion)",
+      "Note": "Supplied in two halves, complete with square nut and slotted hexagonal head machine screw"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 259,
+    "name": "Channel Straps - Rigid Conduit or Pipe Clamps",
+    "category": "Electrical",
+    "options": {
+      "Conduit Size, Material Thickness, and Design Load": {
+        "CH 0055 A": "3/8\" - 16Ga (1.5mm) - 400 lbs",
+        "CH 0039 A": "1/2\" - 16Ga (1.5mm) - 400 lbs",
+        "CH 0044 A": "3/4\" - 14Ga (1.9mm) - 600 lbs",
+        "CH 0038 A": "1\" - 14Ga (1.9mm) - 600 lbs",
+        "CH 0041 A": "1-1/4\" - 14Ga (1.9mm) - 600 lbs",
+        "CH 0040 A": "1-1/2\" - 12Ga (2.6mm) - 800 lbs",
+        "CH 0042 A": "2\" - 12Ga (2.6mm) - 800 lbs",
+        "CH 0037 A": "2-1/2\" - 12Ga (2.6mm) - 800 lbs",
+        "CH 0043 A": "3\" - 12Ga (2.6mm) - 800 lbs",
+        "CH 0045 A": "3-1/2\" - 11Ga (3.0mm) - 1000 lbs",
+        "CH 0046 A": "4\" - 11Ga (3.0mm) - 1000 lbs",
+        "CH 0059 A": "4-1/2\" - 11Ga (3.0mm) - 1000 lbs",
+        "CH 0060 A": "5\" - 11Ga (3.0mm) - 1000 lbs",
+        "CH 0047 A": "6\" - 11Ga (3.0mm) - 1000 lbs",
+        "CH 0062 A": "7\" - 11Ga (3.0mm) - 1000 lbs",
+        "CH 0063 A": "8\" - 11Ga (3.0mm) - 1000 lbs",
+        "CH 0064 A": "9\" - 10Ga (3.5mm) - 1000 lbs"
+      },
+      "Standard Finish": "Zinc Plated / Nickel Plated",
+      "Finish Options": "HG (Hot Dip Galvanized), EG (Electro Galvanized), PG (Pre Galvanized), P (PVC coated), V (Vibra cushion)",
+      "Note": "Supplied in two halves, complete with square nut and slotted hexagonal head machine screw"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 260,
+    "name": "Cable Clamp N-Type",
+    "category": "Electrical",
+    "options": {
+      "Cable Diameter Range": [
+        "8-12mm", "12-16mm",
+        "16-22mm", "22-28mm", "28-34mm", "34-40mm",
+        "40-46mm", "46-52mm", "52-58mm", "58-64mm",
+        "64-70mm", "70-76mm", "76-82mm", "82-90mm", "90-100mm"
+      ],
+      "Material": "High quality galvanized mild steel sheet",
+      "Features": "Adjustable PVC saddle which tightens the cable against any channel or flat surface",
+      "Application": "Usually used with German Channel",
+      "Note": "Any other size and shape can be made on request"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 261,
+    "name": "Cable Clamp F-Type",
+    "category": "Electrical",
+    "options": {
+      "Cable Diameter Range": [
+        "8-12mm", "12-16mm",
+        "16-22mm", "22-28mm", "28-34mm", "34-40mm",
+        "40-46mm", "46-52mm", "52-58mm", "58-64mm",
+        "64-70mm", "70-76mm", "76-82mm", "82-90mm", "90-100mm"
+      ],
+      "Material": "High quality galvanized mild steel sheet",
+      "Features": "Adjustable PVC saddle which tightens the cable against any channel or flat surface",
+      "Application": "Mainly used with flat bar or angles",
+      "Note": "Any other size and shape can be made on request"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },{
+    "id": 263,
+    "name": "A1/A2 Cable Glands",
+    "category": "Electrical",
+    "options": {
+      "Gland Specifications(gland/diameter x length thread/cable range/earth tag/shroud)": [
+  "16mm/20mm x 15mm/8.6-3.5mm/ET20/SA 16",
+  "20S/20mm x 10mm/11.5-8.0mm/ET20/SA 20S",
+  "20mm/20mm x 10mm/13.5-11.0mm/ET20/SA 20",
+  "25mm/25mm x 10mm/19.5-13.0mm/ET25/SA 25",
+  "32mm/32mm x 10mm/25.5-19.0mm/ET32/SA 32",
+  "40mm/40mm x 15mm/32.0-25.0mm/ET40/SA 40",
+  "50S/50mm x 15mm/37.0-31.5mm/ET50/SA 50S",
+  "50mm/50mm x 15mm/43.0-36.5mm/ET50/SA 50",
+  "63S/63mm x 15mm/50.0-42.5mm/ET63/SA 63S",
+  "63mm/63mm x 15mm/55.0-48.5mm/ET63/SA 63",
+  "75S/75mm x 15mm/61.0-54.5mm/ET75/SA 75S",
+  "75mm/75mm x 15mm/67.0-60.5mm/ET75/SA 75",
+  "90mm/90mm x 15mm/79.0-60.0mm/ET90/SA 90"
+],
+      "Material": "High quality brass castings and rods",
+      "Finish": "Standard brass color - Tin/Nickel/Chrome plated available on request",
+      "Application": "Used with all types of unarmored cables, plastic or rubber sheathed cables for indoor and outdoor installations",
+      "Note": "Any other sizes can be made on request"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 264,
+    "name": "CW Cable Glands",
+    "category": "Electrical",
+    "options": {
+      "Gland Specifications (size/diameter x length/inner sheath/outer sheath/earth tag/shroud)": [
+  "20/16mm /20mm x 15mm/8.6-3.5mm/13.2-8.4mm/ET20/SA 16",
+  "20S/20mm x 10mm/11.5-8.0mm/15.8-12.9mm/ET20/SA 20S",
+  "20mm/20mm x 10mm/13.5-11.0mm/20.8-15.5mm/ET20/SA 20",
+  "25mm/25mm x 10mm/19.5-13.0mm/27.2-20.3mm/ET25/SA 25",
+  "32mm/32mm x 10mm/25.5-19.0mm/33.5-26.7mm/ET32/SA 32",
+  "40mm/40mm x 15mm/32.0-25.0mm/39.9-33.0mm/ET40/SA 40",
+  "50S/50mm x 15mm/37.0-31.5mm/46.3-39.4mm/ET50/SA 50S",
+  "50mm/50mm x 15mm/43.0-36.5mm/52.6-45.7mm/ET50/SA 50",
+  "63S/63mm x 15mm/50.0-42.5mm/58.9-52.1mm/ET63/SA 63S",
+  "63mm/63mm x 15mm/55.0-48.5mm/65.3-58.4mm/ET63/SA 63",
+  "75S/75mm x 15mm/61.0-54.5mm/71.6-64.8mm/ET75/SA 75S",
+  "75mm/75mm x 15mm/67.0-60.5mm/78.0-71.1mm/ET75/SA 75",
+  "90mm/90mm x 15mm/79.0-60.0mm/90.0-65.0mm/ET90/SA 90"
+],
+      "Application": "Most suitable for outdoor installation of Steel Wire Armoured (SWA), Plastic and Rubber sheathed cables",
+      "Features": "Knurled armour/lock produces a low resistance earth clamp",
+      "Configuration": "Available in 2 part armour / earth lock"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 265,
+    "name": "BW-Light Duty Cable Glands",
+    "category": "Electrical",
+    "options": {
+      "Gland Specifications (size/diameter x length/inner sheath/outer sheath/earth tag/shroud)": [
+  "20S/20mm x 10mm/11.6-8.0mm/15.8-12.9mm/ET20/SB 20S",
+  "20L/20mm x 10mm/13.9-11.0mm/20.8-15.5mm/ET20/SB 20",
+  "25mm/25mm x 10mm/19.9-13.0mm/27.2-20.3mm/ET25/SB 25",
+  "32mm/32mm x 10mm/26.2-19.0mm/33.5-26.7mm/ET32/SB 32",
+  "40mm/40mm x 15mm/32.1-25.0mm/39.9-33.0mm/ET40/SB 40",
+  "50S/50mm x 15mm/38.1-31.5mm/46.3-39.4mm/ET50/SB 50S",
+  "50mm/50mm x 15mm/44.0-36.5mm/52.6-45.7mm/ET50/SB 50",
+  "63S/63mm x 15mm/50.0-42.5mm/58.9-52.1mm/ET63/SB 63S",
+  "63mm/63mm x 15mm/55.9-48.5mm/65.3-58.4mm/ET63/SB 63",
+  "75S/75mm x 15mm/61.9-54.5mm/71.6-64.8mm/ET75/SB 75S",
+  "75L/75mm x 15mm/67.9-60.5mm/78.0-71.1mm/ET75/SB 75",
+  "90mm/90mm x 15mm/69.9-66.0mm/90.0-65.0mm/ET90/SB 90"
+],
+      "Application": "Most suitable for all types of Steel Wire Armoured (SWA) cables where no seal is required on cables - inner or outer sheathing",
+      "Features": "Knurled armour lock produces a low resistance earth clamp",
+      "Configuration": "Available in two parts (without lock-ring) and three parts (with lock ring)"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 266,
+    "name": "Gland Accessories - Locknuts",
+    "category": "Electrical",
+    "options": {
+      "Description": "Brass locknuts used for fastening glands to gland plate",
+      "Size Range": "Entry threads ranging from 16mm to 100mm",
+      "Materials": "Available in brass, galvanized steel, and aluminium"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 267,
+    "name": "Gland Accessories - Shrouds",
+    "category": "Electrical",
+    "options": {
+      "Description": "Made of PVC and provide additional protection to the gland terminations"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 268,
+    "name": "Earth Tags",
+    "category": "Electrical",
+    "options": {
+      "Description": "Provide full earth continuity between the electrical equipment and the gland",
+      "Size Range": "Available in various sizes from 16mm to 100mm"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  },
+  {
+    "id": 269,
+    "name": "Straight Cable Lugs",
+    "category": "Electrical",
+    "options": {
+      "Conductor Sections and Bolt Specifications": {
+        "LU 0007 A": "M5 bolt - 5.5mm D2 - 22mm a - 12mm b\n",
+        "LU 0008 A": "M6 bolt - 6.5mm D2 - 22mm a - 12mm b",
+        "LU 0009 A": "10mm² - M10 bolt - 4.5mm D1 - 8.5mm D2 - 7mm c - 25mm a - 10mm b - 15mm L\n",
+        "LU 0005 A": "M10 bolt - 10.5mm D2 - 27mm a - 17mm b\n",
+        "LU 0050 A (1)": "M5 bolt - 5.5mm D2 - 26mm a - 12mm b\n",
+        "LU 0051 A (1)": "M6 bolt - 6.5mm D2 - 27mm a - 12mm b\n",
+        "LU 0032 A": "M8 bolt - 8.5mm D2 - 29mm a - 13mm b - 15mm L\n",
+        "LU 0033 A": "16mm² - M8 bolt - 5.5mm D1 - 8.5mm D2 - 8.5mm c - 31mm a - 17mm b\n",
+        "LU 0034 A": "M10 bolt - 10.5mm D2 - 31mm a - 17mm b\n",
+        "LU 0035 A": "M12 bolt - 13mm D2 - 33mm a - 19mm b\n",
+        "LU 0036 A": "M6 bolt - 6.5mm D2 - 30mm a - 14mm b\n",
+        "LU 0037 A": "M8 bolt - 8.5mm D2 - 32mm a - 16mm b\n",
+        "LU 0038 A": "25mm² - M10 bolt - 7mm D1 - 10.5mm D2 - 10mm c - 34mm a - 15mm b - 18mm L\n",
+        "LU 0039 A": "M12 bolt - 13mm D2 - 35mm a - 19mm b\n",
+        "LU 0040 A": "M14 bolt - 15mm D2 - 38mm a - 21mm b\n",
+        "LU 0041 A": "M6 bolt - 6.5mm D2 - 32mm a - 17mm b\n",
+        "LU 0042 A": "M8 bolt - 8.5mm D2 - 34mm a - 17mm b\n",
+        "LU 0043 A": "35mm² - M10 bolt - 8.5mm D1 - 10.5mm D2 - 12mm c - 37mm a - 17mm b - 19mm L\n",
+        "LU 0044 A": "M12 bolt - 13mm D2 - 38mm a - 21mm b\n",
+        "LU 0045 A": "M14 bolt - 15mm D2 - 40mm a - 21mm b\n",
+        "LU 0046 A": "M16 bolt - 17mm D2 - 42mm a - 26mm b\n",
+        "LU 0047 A": "M6 bolt - 6.5mm D2 - 37mm a - 20mm b\n",
+        "LU 0048 A": "M8 bolt - 8.5mm D2 - 37mm a - 20mm b\n",
+        "LU 0049 A": "50mm² - M10 bolt - 10mm D1 - 10.5mm D2 - 14mm c - 39mm a - 19mm b - 20mm L\n",
+        "LU 0050 A (2)": "M12 bolt - 13mm D2 - 43mm a - 23mm b\n",
+        "LU 0051 A (2)": "M14 bolt - 15mm D2 - 45mm a - 23mm b\n",
+        "LU 0052 A": "M16 bolt - 17mm D2 - 46mm a - 28mm b\n"
+      },
+      "Material": "High conductivity seamless copper tube conforming to BS 2874-C101 ASTM B 152-C 11000",
+      "Application": "Used for cable terminations, available with or without inspection hole",
+      "Note": "Other sizes available on request"
+    },
+    "rate": "https://elfitarabia.com/electrical/",
+    "stock": "in_stock",
+    "image": ""
+  }
 ]

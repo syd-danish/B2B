@@ -1,6 +1,7 @@
 from flask import (Flask, render_template, request,
-                   flash, session, redirect, url_for,jsonify)
-import sqlite3, random, smtplib, os,json
+                   flash, session, redirect,
+                   url_for, jsonify)
+import sqlite3, random, smtplib, os, json
 from email.mime.text import MIMEText
 from dotenv import load_dotenv
 from datetime import datetime
@@ -22,7 +23,6 @@ MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5MB max file size
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
 
 def init_db():
     conn = sqlite3.connect(DATABASE)
@@ -331,7 +331,7 @@ def manage_products():
         "Winches", "Cable Drum Trailers", "Rollers", "Cable Drum Lifting Jacks", "Cable Locators", "Reeling Machine",
         "Cable Pulling Grips & Swivel Link", "Duct Rods", "Hydraulic Cutting and Crimping Tools"
         ,"Warning Tapes", "Manhole", "Ropes", "Duct",
-        "Telecom", "Fiber Optic", "Electrical", "Solar", "Pipes",
+        "Electrical", "Solar", "Pipes",
         "Other Products"
     ]
     # Connect to database
@@ -534,32 +534,24 @@ def delete_product(product_id):
     try:
         conn = sqlite3.connect(DATABASE)
         cursor = conn.cursor()
-
         cursor.execute("SELECT product_name, image_filename FROM products WHERE id = ?", (product_id,))
         product = cursor.fetchone()
-
         if product:
             product_name = product[0]
             image_filename = product[1]
-
             if image_filename:
                 file_path = os.path.join(app.config['UPLOAD_FOLDER'], image_filename)
                 if os.path.exists(file_path):
                     os.remove(file_path)
-
             cursor.execute("DELETE FROM products WHERE id = ?", (product_id,))
             conn.commit()
-
             flash(f"Product '{product_name}' deleted successfully!")
         else:
             flash("Product not found")
-
         conn.close()
-
     except Exception as e:
         flash(f"Error deleting product: {str(e)}")
     return redirect(url_for("manage_products"))
-
 
 @app.route("/api/products/<category>")
 def get_products_by_category(category):
@@ -924,16 +916,11 @@ def dashboard():
     all_categories = [
         "Winches", "Cable Drum Trailers","Rollers","Cable Drum Lifting Jacks","Cable Locators","Reeling Machine",
         "Cable Pulling Grips & Swivel Link","Duct Rods", "Hydraulic Cutting and Crimping Tools",
-        "Warning Tapes", "Manhole", "Ropes", "Duct",
-        "Telecom", "Fiber Optic", "Electrical", "Solar", "Pipes", "Other Products"
-    ]
+        "Warning Tapes", "Manhole", "Ropes", "Duct","Electrical", "Solar", "Pipes", "Other Products"]
     products_by_cat = {cat: [] for cat in all_categories}
     for product in products_list:
         cat = product["category"] if product["category"] in all_categories else "Other Products"
         products_by_cat[cat].append(product)
-
-
-    # 🔑 Pass products_by_cat into template
     return render_template(
         "dashboard.html",
         products_by_cat=products_by_cat,all_categories=all_categories
@@ -1177,6 +1164,7 @@ def logout():
     session.clear()
     flash("You have been logged out successfully")
     return redirect(url_for("login"))
+
 
 
 if __name__ == "__main__":

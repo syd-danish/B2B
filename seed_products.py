@@ -23,7 +23,7 @@ cursor.execute("""
         """)
 
 # Wipe existing products (optional: so catalog always matches products.json)
-cursor.execute("DELETE FROM products")
+#cursor.execute("DELETE FROM products")
 
 # Insert products
 for p in products:
