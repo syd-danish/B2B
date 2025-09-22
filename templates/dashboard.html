@@ -15,27 +15,19 @@
             border-radius: 8px;
             padding: 20px;
             margin-bottom: 20px;
-        }
-  .nav-link {
-  white-space: nowrap;   /* prevents line break */
-  margin-left: 15px;     /* adds spacing */
-}</style>
+        }</style>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand text-white" href="{{ url_for('dashboard') }}">Elfit Arabia Client Dashboard</a>
         </div>
-
-    <a class="nav-link text-white" href="{{ url_for('my_messages') }}">My Messages</a>
-    <a class="nav-link text-white" href="{{ url_for('my_orders') }}">My Orders</a>
-    <a class="nav-link text-white" href="{{ url_for('contact_us') }}">Contact Us</a>
   <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
 </nav>
 
 <div class="content container-fluid">
 <div class="section">
-    <h2 style="padding-bottom: 15px; color:white;">Place an Enquiry</h2>
+    <h2 style="padding-bottom: 15px; color:white;">Place an Order</h2>
     {% for category in all_categories %}
     <div class="product-category mb-3">
         <div class="category-header d-flex justify-content-between align-items-center"
@@ -53,6 +45,7 @@
                             <div class="card h-100" style="background-color: #3a5e46; border: 1px solid #4a7c59;">
                                 <div class="card-body d-flex flex-column">
                                     <h5 class="card-title text-white">{{ product.name }}</h5>
+
                                     {% if product.options %}
                                         {% for opt_name, opt_value in product.options.items() %}
                                         <div class="mb-2">
@@ -60,8 +53,10 @@
                                         </div>
                                         {% endfor %}
                                     {% endif %}
+
                                     {% if product.rate %}
                                     <p class="mb-2 text-white"><strong>More Details:</strong>
+
                                         <a href=" {{ product.rate }} "> {{ product.rate }} </a>
                                     </p>
                                     {% endif %}
@@ -86,7 +81,7 @@
                                     <button class="btn btn-primary btn-sm mt-auto" data-bs-toggle="modal"
                                             data-bs-target="#orderModal"
                                             onclick="setOrderProduct('{{ product.id }}','{{ product.name }}')" >
-                                      Place an Enquiry </button>
+                                      Place Order </button>
                                       {% endif %}
                                 </div>
                             </div>
@@ -102,11 +97,13 @@
     {% endfor %}
 </div>
 </div>
+
+
 <div class="modal fade" id="orderModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content" style="background-color:#2a3b2f; color:white;">
       <div class="modal-header">
-        <h5 class="modal-title">Place Enquiry</h5>
+        <h5 class="modal-title">Place Order</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <form method="POST" action="{{ url_for('place_order') }}">
@@ -118,6 +115,7 @@
             <label class="form-label">Expected Date</label>
             <input type="date" class="form-control" name="expected_date" required>
           </div>
+
           <div class="mb-3 d-flex gap-2">
             <input type="number" class="form-control" name="quantity_value" placeholder="Quantity" required>
             <input type="text" class="form-control" name="quantity_unit" placeholder="Unit (kg, item, m...)" required>
@@ -129,7 +127,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="submit" class="btn btn-success">Confirm Inquiry</button>
+          <button type="submit" class="btn btn-success">Confirm Order</button>
         </div>
       </form>
     </div>
