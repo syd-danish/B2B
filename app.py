@@ -1,7 +1,7 @@
 from flask import (Flask, render_template, request,
                    flash, session, redirect,
                    url_for, jsonify)
-import sqlite3, random, smtplib, os, json
+import sqlite3, random, smtplib, os, json, re
 from email.mime.text import MIMEText
 from dotenv import load_dotenv
 from datetime import datetime
@@ -104,7 +104,7 @@ def init_db():
         body TEXT,
         attachment_name TEXT,
         order_name TEXT,
-    order_quantity TEXT,
+        order_quantity TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (order_id) REFERENCES orders(id)
     )
@@ -129,9 +129,24 @@ def add_client(email, client_name, phone, address, company):
         conn.commit()
         return True
     except sqlite3.IntegrityError:
-        return False  # Email already exists
+        return False # Email already exists
+    except Exception as e:
+        print(f"Database error: {e}")
+        return False
     finally:
         conn.close()
+
+def validate_email(email):
+    """Validate email format"""
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return re.match(pattern, email) is not None
+
+def validate_phone(phone):
+    """Validate phone number format (basic validation)"""
+    # Remove spaces, dashes, and parentheses
+    cleaned_phone = re.sub(r'[\s\-\(\)]', '', phone)
+    # Check if it contains only digits and has reasonable length
+    return len(cleaned_phone) >= 8 and len(cleaned_phone) <= 15 and cleaned_phone.isdigit()
 
 
 
@@ -1083,9 +1098,7 @@ def my_messages():
     conn.close()
     return render_template("my_messages.html",messages=messages)
 
-@app.route("/reports")
-def reports():
-    return render_template("reports.html")
+
 
 @app.route("/place-order/<int:message_id>")
 def finalize_order(message_id):
@@ -1131,9 +1144,6 @@ def contact_us():
     wa_link = f"https://web.whatsapp.com/send?phone={admin_whatsapp}"
     return redirect(wa_link)
 
-
-
-
 @app.route("/talk-further/<int:message_id>")
 def talk_further(message_id):
     conn = sqlite3.connect(DATABASE)
@@ -1158,13 +1168,52 @@ def talk_further(message_id):
     return redirect(wa_link)
 
 
+@app.route("/register", methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip()
+        client_name = request.form.get('client_name', '').strip()
+        phone = request.form.get('phone', '').strip()
+        address = request.form.get('address', '').strip()
+        company = request.form.get('company', '').strip()
+        errors = []
+        if not email:
+            errors.append("Email is required")
+        elif not validate_email(email):
+            errors.append("Please enter a valid email address")
+
+        if not client_name:
+            errors.append("Full name is required")
+        elif len(client_name) < 2:
+            errors.append("Name must be at least 2 characters long")
+
+        if not phone:
+            errors.append("Phone number is required")
+        elif not validate_phone(phone):
+            errors.append("Please enter a valid phone number")
+
+        # If there are validation errors, show them
+        if errors:
+            for error in errors:
+                flash(error, 'error')
+            return render_template("register.html")
+        # Try to add the client to the database
+        if add_client(email, client_name, phone, address, company):
+            flash("Registration successful! You can now log in.", 'success')
+            return redirect(url_for('login'))  # Redirect to login page
+        else:
+            flash("An account with this email already exists. Please try logging in instead.", 'error')
+            return render_template("register.html")
+    return render_template("register.html")
+
+
+
 @app.route("/logout")
 def logout():
     """Logout route - clears session"""
     session.clear()
     flash("You have been logged out successfully")
     return redirect(url_for("login"))
-
 
 
 if __name__ == "__main__":

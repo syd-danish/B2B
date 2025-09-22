@@ -50,6 +50,18 @@
             border-color: #4a7c59;
             color: #e0e0e0;
         }
+        .login-link {
+            text-align: center;
+            margin-top: 1rem;
+        }
+        .login-link a {
+            color: #a8d5ba;
+            text-decoration: none;
+        }
+        .login-link a:hover {
+            color: #6ba581;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -72,6 +84,7 @@
                 <input type="text" name="identifier" id="identifier" class="form-control" value="{{ identifier }}" required>
             </div>
             <button type="submit" class="btn btn-primary w-100">Send OTP</button>
+
         </form>
         {% if show_otp_section %}
             <h3 class="text-center mb-3">Enter OTP</h3>
@@ -83,6 +96,7 @@
                 <button type="submit" class="btn btn-primary w-100">Verify OTP</button>
             </form>
         {% endif %}
+           <p align="center" class="login-link">New to this website? Please<a href="/register"> register</a> first</p>
     </div>
 <script>
         setTimeout(function() {

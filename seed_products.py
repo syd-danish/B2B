@@ -1,7 +1,7 @@
 import sqlite3, json
 from app import DATABASE
 
-with open("product_data.json", "r") as f:
+with open("additional_products.json", "r") as f:
     products = json.load(f)
 
 conn = sqlite3.connect(DATABASE)
@@ -23,7 +23,6 @@ cursor.execute("""
         """)
 
 # Wipe existing products (optional: so catalog always matches products.json)
-#cursor.execute("DELETE FROM products")
 
 # Insert products
 for p in products:
