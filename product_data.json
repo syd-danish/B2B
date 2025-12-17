@@ -561,7 +561,7 @@
   {
     "id": 39,
     "name": "Cable Protection Bend Without Stop",
-    "category": "Cable Laying",
+    "category": "Rollers",
     "options": {
       "finish": "Galvanized",
       "description": "To be used to the Duct entrance to avoid damage to rope & cables"
@@ -573,7 +573,7 @@
   {
     "id": 40,
     "name": "Cable Protection Bend Stop",
-    "category": "Cable Laying",
+    "category": "Rollers",
     "options": {
       "finish": "Galvanized",
       "description": "To be used to the Duct entrance to avoid damage to rope & cables"
@@ -585,7 +585,7 @@
   {
     "id": 41,
     "name": "Cable Protection With 4 Guide Rollers",
-    "category": "Cable Laying",
+    "category": "Rollers",
     "options": {
       "finish": "Galvanized",
       "length": "110mm up to 200mm"
@@ -597,7 +597,7 @@
   {
     "id": 42,
     "name": "Cable Protection With Bend With Angled Base",
-    "category": "Cable Laying",
+    "category": "Rollers",
     "options": {
       "finish": "Galvanized",
       "description": "Tiltable Cable Protection Bend With Pivot"

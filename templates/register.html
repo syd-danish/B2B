@@ -122,24 +122,18 @@
             <textarea name="address" id="address" class="form-control" rows="3"
                       placeholder="Enter your address (optional)">{{ request.form.address if request.form.address }}</textarea>
         </div>
-
         <div class="mb-3">
             <label for="company" class="form-label">Company</label>
             <input type="text" name="company" id="company" class="form-control"
                    placeholder="Enter your company name (optional)"
                    value="{{ request.form.company if request.form.company }}">
         </div>
-
         <button type="submit" class="btn btn-primary w-100">Register</button>
     </form>
-
     <div class="login-link">
-        <p>Already have an account? <a href="/login">Login here</a></p>
-    </div>
-</div>
-
+        <p>Already have an account? <a href="/">Login here</a></p>
+    </div></div>
 <script>
-    // Auto-hide flash messages after 5 seconds
     setTimeout(function() {
         const flashMessages = document.querySelectorAll('.alert');
         flashMessages.forEach(msg => {

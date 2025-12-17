@@ -4,23 +4,30 @@ from flask import (Flask, render_template, request,
 import sqlite3, random, smtplib, os, json, re
 from email.mime.text import MIMEText
 from dotenv import load_dotenv
-from datetime import datetime
 from urllib.parse import quote
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 from werkzeug.utils import secure_filename
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 load_dotenv()
+
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+
 app = Flask(__name__)
-app.secret_key = os.getenv("FLASK_APP_SECRET_KEY")
-DATABASE = "database.db"
+app.secret_key = os.getenv("FLASK_APP_SECRET_KEY", "dev-secret-key")
+INSTANCE_DIR = os.path.join(BASE_DIR, "instance")
+os.makedirs(INSTANCE_DIR, exist_ok=True)
+DATABASE = os.path.join(INSTANCE_DIR, "database.db")
 app.config['DATABASE'] = DATABASE
 print("Database set to:", app.config.get("DATABASE"))
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL")
 AUTHORIZED_CLIENTS=[]
-UPLOAD_FOLDER = 'static/uploads/products'
+
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5MB max file size
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "uploads", "products")
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -115,9 +122,6 @@ def init_db():
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-
-
-
 def add_client(email, client_name, phone, address, company):
     """Add a new client to the database"""
     conn = sqlite3.connect(DATABASE)
@@ -207,7 +211,6 @@ def edit_client_route(client_id):
         return redirect(url_for("login"))
     return redirect(url_for("manage_clients", edit=client_id))
 
-# Add these new routes after your existing manage_clients route:
 
 @app.route("/admin/manage-clients", methods=["GET", "POST"])
 def manage_clients():
@@ -341,13 +344,17 @@ def manage_products():
         flash("Admin access required")
         return redirect(url_for("dashboard"))
 
-    # Define categories
     all_categories = [
         "Winches", "Cable Drum Trailers", "Rollers", "Cable Drum Lifting Jacks", "Cable Locators", "Reeling Machine",
         "Cable Pulling Grips & Swivel Link", "Duct Rods", "Hydraulic Cutting and Crimping Tools"
         ,"Warning Tapes", "Manhole", "Ropes", "Duct",
-        "Electrical", "Solar", "Pipes",
-        "Other Products"
+        "Electrical", "Solar", "Pipes", "Optical Fibre Cables",
+        "Optical Fiber Connectors","Optical Fiber Adapters", "Optical Fiber Consumable",
+        "Optical Fiber Instruments", "Optical Distribution Frames", "Optical Fiber Patch Cord",
+        "Optical Fibre Tools", "Cabinets","Cable Joint Products","Cable & Wires","Connectors",
+        "Distribution Boxes", "Ducts Accessories","Manhole Accessories","Marking & Protection","Earthing Hardware",
+        "Miscellaneous","Poles & Accessories" , "Tapes", "Terminal Blocks","Test & Measurement",
+                                                                           "Telecom Tools" ,"Other Products"
     ]
     # Connect to database
     conn = sqlite3.connect(DATABASE)
@@ -605,17 +612,14 @@ def get_products_by_category(category):
 def login():
     show_otp_section = session.get("otp_sent", False)
     identifier = session.get("identifier", "")
-
     if request.method == "POST":
         if "identifier" in request.form:  # Handle email/phone submission
             identifier = request.form["identifier"].strip().lower()
-            # Check if it's a valid email format
             if "@" not in identifier:
                 flash("Please enter a valid email address")
                 show_otp_section = False
                 session["otp_sent"] = False
                 return render_template("login.html", show_otp_section=show_otp_section, identifier=identifier)
-            # Always allow sending a new OTP
             session["identifier"] = identifier
             otp = str(random.randint(100000, 999999))
             session["otp"] = otp
@@ -674,16 +678,101 @@ def login():
     return render_template("login.html", show_otp_section=show_otp_section, identifier=identifier)
 
 
+
+
+
 @app.route("/admin")
 def admin():
-    """Admin panel route - requires admin authentication"""
     if not session.get("authenticated"):
         flash("Please login to access the admin panel")
         return redirect(url_for("login"))
     if not session.get("is_admin") or not is_admin_in_db(session.get("user_email")):
         flash("Admin access required")
         return redirect(url_for("dashboard"))
-    return render_template("admin.html")
+
+    conn = sqlite3.connect(DATABASE)
+    cur = conn.cursor()
+    from datetime import datetime, timedelta
+    from zoneinfo import ZoneInfo
+    now_uae = datetime.now(ZoneInfo("Asia/Dubai"))
+    one_week_ago = (datetime.now(ZoneInfo("Asia/Dubai")) - timedelta(days=7)).strftime("%Y-%m-%d %H:%M:%S")
+
+    cur.execute("SELECT COUNT(*) FROM orders WHERE datetime(created_at) >= ?", (one_week_ago,))
+    orders_this_week = cur.fetchone()[0]
+
+    cur.execute("SELECT COUNT(*) FROM orders WHERE status IN ('inquiry received', 'quote sent')")
+    unplaced_orders = cur.fetchone()[0]
+
+    cur.execute("SELECT COUNT(*) FROM orders WHERE status = 'delivered'")
+    delivered_count = cur.fetchone()[0]
+
+    cur.execute("SELECT COUNT(*) FROM products WHERE stock_status = 'in_stock'")
+    in_stock_products = cur.fetchone()[0]
+
+    cur.execute("SELECT COUNT(*) FROM users")
+    total_clients = cur.fetchone()[0]
+
+    cur.execute("SELECT COUNT(*) FROM orders WHERE status = 'dispatched'")
+    dispatched_count = cur.fetchone()[0]
+
+    # Pending (not delivered)
+    cur.execute("SELECT COUNT(*) FROM orders WHERE status NOT IN ('delivered','inquiry received', 'quote sent')")
+    pending_orders = cur.fetchone()[0]
+
+    cur.execute("""
+                SELECT product_name, COUNT(*) as inquiries
+                FROM orders
+                WHERE status IN ('inquiry received', 'received')
+                GROUP BY product_name
+                ORDER BY inquiries DESC LIMIT 1
+                """)
+    row = cur.fetchone()
+    most_inquired_item = row[0] if row else "No Inquiries Yet"
+
+    cur.execute("""
+                SELECT user_email, COUNT(*) as order_count
+                FROM orders
+                GROUP BY user_email
+                ORDER BY order_count DESC LIMIT 1
+                """)
+    client_row = cur.fetchone()
+    most_active_client = client_row[0] if client_row else "No Orders Yet"
+    cur.execute("""
+                SELECT MIN(created_at) as first_order_date
+                FROM orders
+                """)
+    cur.execute("""
+                SELECT COUNT(*)
+                FROM orders
+                WHERE payment_status = 'unpaid'
+                  AND status IN ('order placed', 'dispatched', 'delivered')
+                """)
+    payment_status_count = cur.fetchone()[0]
+
+    """
+    first_order_row = cur.fetchone()
+    if first_order_row and first_order_row[0]:
+        # Parse the date and format it nicely
+        from datetime import datetime
+        first_date = datetime.strptime(first_order_row[0], '%Y-%m-%d %H:%M:%S')
+        first_order_month = first_date.strftime('%B %Y')  # e.g., "October 2024"
+    else:
+        first_order_month = None"""
+
+
+    return render_template(
+        "admin.html",
+        section="dashboard",unplaced_orders=unplaced_orders,
+        orders_this_week=orders_this_week,
+        delivered_count=delivered_count,
+        dispatched_count=dispatched_count,
+        pending_orders=pending_orders,
+        in_stock_products=in_stock_products,
+        total_clients=total_clients,
+        most_inquired_item=most_inquired_item,
+    most_active_client = most_active_client, payment_status_count=payment_status_count
+    )
+
 
 
 def get_all_admins():
@@ -706,7 +795,6 @@ def add_admin(email):
 
         # Add to admins table
         cursor.execute("INSERT INTO admins (email) VALUES (?)", (email.lower(),))
-
         # If they were a client, update their user_type to admin
         if client:
             cursor.execute("UPDATE users SET user_type = 'admin' WHERE email = ?", (email.lower(),))
@@ -722,14 +810,11 @@ def remove_admin(admin_id):
     """Remove an admin and convert them to a client"""
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
-
     # Get the admin email before deletion
     cursor.execute("SELECT email FROM admins WHERE id = ?", (admin_id,))
     admin = cursor.fetchone()
-
     if admin:
         admin_email = admin[0]
-
         # Don't allow removal of main admin
         main_admin_email = os.getenv("ADMIN_EMAIL")
         if admin_email.lower() == main_admin_email.lower():
@@ -751,7 +836,6 @@ def remove_admin(admin_id):
             cursor.execute("""INSERT INTO users (email, client_name, phone, address, company, user_type) 
                              VALUES (?, ?, '', '', '', 'client')""",
                            (admin_email, admin_email.split('@')[0]))
-
         conn.commit()
         conn.close()
         return True, "Admin removed and converted to client"
@@ -804,19 +888,15 @@ def add_admin_route():
         session.clear()
         flash("Admin access required")
         return redirect(url_for("login"))
-
     admin_email = request.form.get("admin_email", "").strip().lower()
-
     # Validate email
     if not admin_email or "@" not in admin_email:
         flash("Please enter a valid email address")
         return redirect(url_for("admin_list"))
-
     # Check if already an admin
     if is_admin_in_db(admin_email):
         flash("User is already an admin")
         return redirect(url_for("admin_list"))
-
     if add_admin(admin_email):
         flash(f"Admin {admin_email} added successfully!")
     else:
@@ -843,6 +923,29 @@ def remove_admin_route(admin_id):
     flash(message)
 
     return redirect(url_for("admin_list"))
+
+
+@app.context_processor
+def inject_unread_count():
+    unread_count = 0
+    if session.get("authenticated"):
+        user_email = session.get("user_email")
+        if user_email:
+            unread_count = get_unread_message_count(user_email)
+    return dict(unread_count=unread_count)
+
+datetime.now
+@app.route("/api/unread-count")
+def api_unread_count():
+    if not session.get("authenticated"):
+        return jsonify({"count": 0})
+
+    user_email = session.get("user_email")
+    if not user_email:
+        return jsonify({"count": 0})
+
+    count = get_unread_message_count(user_email)
+    return jsonify({"count": count})
 
 
 @app.route("/place_order", methods=["POST"])
@@ -873,8 +976,8 @@ def place_order():
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
     cursor.execute("""
-        INSERT INTO orders (product_name, expected_date, quantity, comments, user_email)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO orders (product_name, expected_date, quantity, comments, user_email,status, last_updated)
+        VALUES (?, ?, ?, ?, ?, "inquiry received", datetime('now', '+4 hours'))
     """, (product_name, expected_date, quantity, comments, user_email))
     conn.commit()
     conn.close()
@@ -911,6 +1014,7 @@ def dashboard():
     if not session.get("authenticated"):
         flash("Please login to access the dashboard")
         return redirect(url_for("login"))
+    user_email = session.get("user_email")
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM products")
@@ -927,11 +1031,16 @@ def dashboard():
             "stock": row[5],
             "image": row[6]
         })
-
     all_categories = [
         "Winches", "Cable Drum Trailers","Rollers","Cable Drum Lifting Jacks","Cable Locators","Reeling Machine",
         "Cable Pulling Grips & Swivel Link","Duct Rods", "Hydraulic Cutting and Crimping Tools",
-        "Warning Tapes", "Manhole", "Ropes", "Duct","Electrical", "Solar", "Pipes", "Other Products"]
+        "Warning Tapes", "Manhole", "Ropes", "Duct","Electrical", "Solar",
+        "Pipes","Optical Fibre Cables","Optical Fiber Connectors" ,"Optical Fiber Adapters",
+        "Optical Fiber Consumable","Optical Fiber Instruments", "Optical Distribution Frames",
+        "Optical Fiber Patch Cord","Optical Fiber Tools","Cabinets","Cable Joint Products",
+        "Cable & Wires", "Connectors", "Distribution Boxes", "Ducts Accessories",
+        "Manhole Accessories", "Marking & Protection","Earthing Hardware","Miscellaneous", "Poles & Accessories",
+        "Tapes","Terminal Blocks","Test & Measurement","Telecom Tools","Other Products"]
     products_by_cat = {cat: [] for cat in all_categories}
     for product in products_list:
         cat = product["category"] if product["category"] in all_categories else "Other Products"
@@ -950,27 +1059,11 @@ def client_orders():
         return redirect(url_for("dashboard"))
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM orders ORDER BY created_at DESC")
+    cursor.execute("SELECT * FROM orders ORDER BY datetime(last_updated) DESC")
     orders = cursor.fetchall()
     conn.close()
     return render_template("admin.html", section="client-orders", orders=orders)
 
-
-@app.route("/admin/update-order/<int:order_id>", methods=["POST"])
-def update_order(order_id):
-    if not session.get("authenticated") or not session.get("is_admin"):
-        flash("Admin access required")
-        return redirect(url_for("login"))
-
-    new_status = request.form.get("status")
-    conn = sqlite3.connect(DATABASE)
-    cursor = conn.cursor()
-    cursor.execute("UPDATE orders SET status = ? WHERE id = ?", (new_status, order_id))
-    conn.commit()
-    conn.close()
-
-    flash("Order status updated!", "success")
-    return redirect(url_for("client_orders"))
 
 
 @app.route("/admin/delete-order/<int:order_id>", methods=["POST"])
@@ -995,7 +1088,6 @@ def my_orders():
         return redirect(url_for("login"))
 
     user_email = session.get("user_email")
-
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
@@ -1017,7 +1109,6 @@ def send_quotation():
     client_email = request.form.get("user_email","").strip()
     message_body = request.form["message"]
     attachment = request.files.get("attachment")
-
     print("=== FORM DEBUG ===")
     print("Request method:", request.method)
     print("All form data:", dict(request.form))
@@ -1036,7 +1127,7 @@ def send_quotation():
     email_user = os.getenv("SENDER_GMAIL_ADDRS")
     email_pass = os.getenv("GMAIL_APP_PASSWORD_1")
     msg = MIMEMultipart()
-    msg["Subject"] = f"Quotation for Order #{order_id}"
+    msg["Subject"] = f"Quotation for Order #{order_id}: {order_name} ({order_quantity})"
     msg["From"] = email_user
     msg["To"] = client_email
     msg.attach(MIMEText(message_body, "plain"))
@@ -1069,6 +1160,11 @@ def send_quotation():
             order_name,
             order_quantity
         ))
+        cursor.execute("""
+                    UPDATE orders 
+                    SET status = 'quote sent', last_updated = datetime('now', '+4 hours') 
+                    WHERE id = ?
+                """, (order_id,))
         conn.commit()
         conn.close()
         flash(f"Quotation sent to {client_email}", "success")
@@ -1078,6 +1174,216 @@ def send_quotation():
     return redirect(url_for("client_orders"))
 
 
+
+@app.route("/admin/dispatch-order/<int:order_id>", methods=["POST"])
+def dispatch_order(order_id):
+    if not session.get("authenticated") or not session.get("is_admin"):
+        flash("Admin access required", "danger")
+        return redirect(url_for("login"))
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute("""
+            SELECT id, user_email, product_name, quantity
+            FROM orders 
+            WHERE id = ?
+        """, (order_id,))
+    order = cursor.fetchone()
+    conn.close()
+
+    if not order:
+        flash("Order not found", "danger")
+        return redirect(url_for("admin_dashboard"))
+    order_id = order[0]
+    client_email = order[1]
+    product_name = order[2]
+    quantity = order[3]
+
+    email_user = os.getenv("SENDER_GMAIL_ADDRS")
+    email_pass = os.getenv("GMAIL_APP_PASSWORD_1")
+
+    msg = MIMEMultipart()
+    msg["Subject"] = f"Order Dispatched - Order #{order_id}: {product_name}"
+    msg["From"] = email_user
+    msg["To"] = client_email
+    email_body = f"""Dear Customer,
+
+    Good news! Your order has been dispatched.
+
+    Order Details:
+    - Order ID: #{order_id}
+    - Product: {product_name}
+    - Quantity: {quantity}
+    Your order is on its way and should arrive by the expected delivery date.
+    If you have any questions, please don't hesitate to contact us.
+    Best regards,
+    Elfit Arabia Team"""
+    msg.attach(MIMEText(email_body, "plain"))
+    try:
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+            server.starttls()
+            server.login(email_user, email_pass)
+            server.send_message(msg)
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        cursor.execute("""
+                INSERT INTO messages (order_id, user_email, subject, body, attachment_name,
+                order_name, order_quantity, is_read)
+                VALUES (?, ?, ?, ?, ?, ?, ?, 0)
+            """, (
+            order_id,
+            client_email,
+            f"Order Dispatched - Order #{order_id}",
+            email_body,
+            None,  # No attachment for dispatch notification
+            product_name,
+            quantity
+        ))
+        # Update order status to "dispatched"
+        cursor.execute("""
+                UPDATE orders 
+                SET status = 'dispatched' ,  last_updated = datetime('now', '+4 hours')
+                WHERE id = ?
+            """, (order_id,))
+
+        conn.commit()
+        conn.close()
+
+        flash(f"Dispatch notification sent to {client_email} and status updated to 'Dispatched'", "success")
+    except Exception as e:
+        app.logger.error("Error sending dispatch notification: %s", e)
+        flash("Failed to send dispatch notification. Check server logs.", "danger")
+    return redirect(url_for("client_orders"))
+
+
+@app.route("/admin/mark-delivered/<int:order_id>", methods=["POST"])
+def mark_delivered(order_id):
+    if not session.get("authenticated") or not session.get("is_admin"):
+        flash("Admin access required", "danger")
+        return redirect(url_for("login"))
+
+    # Get order details from database
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT id, user_email, product_name, quantity
+        FROM orders 
+        WHERE id = ?
+    """, (order_id,))
+    order = cursor.fetchone()
+    conn.close()
+
+    if not order:
+        flash("Order not found", "danger")
+        return redirect(url_for("admin_dashboard"))
+
+    order_id = order[0]
+    client_email = order[1]
+    product_name = order[2]
+    quantity = order[3]
+    # Prepare email
+    email_user = os.getenv("SENDER_GMAIL_ADDRS")
+    email_pass = os.getenv("GMAIL_APP_PASSWORD_1")
+    msg = MIMEMultipart()
+    msg["Subject"] = f"Order Delivered - Order #{order_id}: {product_name}"
+    msg["From"] = email_user
+    msg["To"] = client_email
+    # Email body
+    email_body = f"""Dear Customer,
+
+Your order has been successfully delivered!\n
+
+Order Details:\n
+- Order ID: #{order_id}\n
+- Product: {product_name}\n
+- Quantity: {quantity}\n
+Thank you for choosing Elfit Arabia. We hope you're satisfied with your purchase.\n
+If you have any questions or concerns about your order, please don't hesitate to contact us.\n
+Best regards,\n
+Elfit Arabia Team\n"""
+
+    msg.attach(MIMEText(email_body, "plain"))
+
+    try:
+        # Send email
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+            server.starttls()
+            server.login(email_user, email_pass)
+            server.send_message(msg)
+
+        # Save to messages table and update order status
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+
+        # Insert delivery confirmation message
+        cursor.execute("""
+            INSERT INTO messages (order_id, user_email, subject, body, attachment_name,
+            order_name, order_quantity, is_read)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 0)
+        """, (
+            order_id,
+            client_email,
+            f"Order Delivered - Order #{order_id}",
+            email_body,
+            None,  # No attachment for delivery notification
+            product_name,
+            quantity
+        ))
+        # Update order status to "delivered"
+        cursor.execute("""
+            UPDATE orders 
+            SET status = 'delivered' ,  last_updated = datetime('now', '+4 hours')
+            WHERE id = ?
+        """, (order_id,))
+        conn.commit()
+        conn.close()
+        flash(f"Delivery confirmation sent to {client_email} and status updated to 'Delivered'", "success")
+    except Exception as e:
+        app.logger.error("Error sending delivery confirmation: %s", e)
+        flash("Failed to send delivery confirmation. Check server logs.", "danger")
+    return redirect(url_for("client_orders"))
+
+@app.route("/cancel-order/<int:message_id>", methods=["POST"])
+def cancel_order(message_id):
+    if not session.get("authenticated"):
+        flash("Please login first", "warning")
+        return redirect(url_for("login"))
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    # Get message details
+    cursor.execute("SELECT * FROM messages WHERE id=?", (message_id,))
+    msg = cursor.fetchone()
+    if not msg:
+        flash("Message not found", "danger")
+        conn.close()
+        return redirect(url_for("my_messages"))
+    user_email = msg["user_email"]
+    order_name = msg["order_name"]
+    order_quantity = msg["order_quantity"]
+    # Insert cancellation message in messages
+    cursor.execute("""
+        INSERT INTO messages (user_email, subject, body, order_name, order_quantity, created_at, is_read)
+        VALUES (?, ?, ?, ?, ?, datetime('now'), 0)
+    """, (
+        user_email,
+        "Order Cancelled",
+        f"Your order '{order_name}' ({order_quantity}) has been cancelled by the client.",
+        order_name,
+        order_quantity
+    ))
+    cursor.execute("""
+        UPDATE orders 
+        SET status = 'cancelled' , last_updated = datetime('now', '+4 hours')
+        WHERE product_name = ? AND user_email = ?
+    """, (order_name, user_email))
+    conn.commit()
+    conn.close()
+    flash("Order has been cancelled", "success")
+    return redirect(url_for("my_messages"))
+
+
+
+
 @app.route("/my-messages")
 def my_messages():
     if not session.get("authenticated"):
@@ -1085,20 +1391,28 @@ def my_messages():
         return redirect(url_for("login"))
 
     user_email = session.get("user_email")
-
     conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     cursor.execute("""
-            SELECT id, order_id, subject, body, attachment_name,order_name, order_quantity, created_at
-            FROM messages
-            WHERE user_email = ?
-            ORDER BY created_at DESC
-        """, (user_email,))
+        SELECT m.id, m.order_id, m.subject, m.body, m.attachment_name,
+               m.order_name, m.order_quantity, m.created_at, m.is_read,
+               o.status AS order_status
+        FROM messages m
+        LEFT JOIN orders o
+          ON m.order_name = o.product_name
+         AND m.user_email = o.user_email
+        WHERE m.user_email = ?
+        ORDER BY m.created_at DESC
+    """, (user_email,))
     messages = cursor.fetchall()
+    cursor.execute("""
+            UPDATE messages SET is_read = 1 
+            WHERE user_email = ? AND (is_read = 0 OR is_read IS NULL)
+        """, (user_email,))
+    conn.commit()
     conn.close()
-    return render_template("my_messages.html",messages=messages)
-
-
+    return render_template("my_messages.html", messages=messages)
 
 @app.route("/place-order/<int:message_id>")
 def finalize_order(message_id):
@@ -1111,6 +1425,7 @@ def finalize_order(message_id):
         quotation=msg[4]
         order_name=msg[6]
         order_quantity=msg[7]
+        order_id=msg[1]
         try:
             msg_out = MIMEMultipart()
             msg_out["From"] = os.getenv('SENDER_GMAIL_ADDRS')
@@ -1131,7 +1446,26 @@ Placed at: {datetime.now()}
                 server.starttls()
                 server.login(os.getenv("SENDER_GMAIL_ADDRS"), os.getenv("GMAIL_APP_PASSWORD_1"))
                 server.sendmail(os.getenv("SENDER_GMAIL_ADDRS"), os.getenv("ADMIN_EMAIL"), msg_out.as_string())
-            flash("Order placed and email sent to admin!")
+            cursor.execute("""
+                            UPDATE orders 
+                            SET status = ? ,  last_updated = datetime('now', '+4 hours')
+                            WHERE product_name = ? AND user_email = ?
+                        """, ("order placed", order_name, user_email))
+            subject = f"Place Order Confirmed - Order #{order_id if order_id else 'N/A'}"
+            body = f"Your order '{order_name}' ({order_quantity}) has been confirmed successfully."
+            cursor.execute("""
+                            INSERT INTO messages (order_id, subject, body, attachment_name, order_name, order_quantity, user_email, created_at, is_read)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), 0)
+                        """, (
+                order_id,
+                subject,
+                body,
+                None,  # no attachment
+                order_name,
+                order_quantity,
+                user_email
+            ))
+            conn.commit()
         except Exception as e:
             flash(f"Email failed to send: {str(e)}")
     else:
@@ -1166,8 +1500,6 @@ def talk_further(message_id):
     encoded_text = quote(text)
     wa_link = f"https://web.whatsapp.com/send?phone={admin_whatsapp}&text={encoded_text}"
     return redirect(wa_link)
-
-
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -1181,23 +1513,18 @@ def register():
             errors.append("Email is required")
         elif not validate_email(email):
             errors.append("Please enter a valid email address")
-
         if not client_name:
             errors.append("Full name is required")
         elif len(client_name) < 2:
             errors.append("Name must be at least 2 characters long")
-
         if not phone:
             errors.append("Phone number is required")
         elif not validate_phone(phone):
-            errors.append("Please enter a valid phone number")
-
-        # If there are validation errors, show them
+            errors.append("Please enter a valid phone number") # If there are validation errors, show them
         if errors:
             for error in errors:
                 flash(error, 'error')
-            return render_template("register.html")
-        # Try to add the client to the database
+            return render_template("register.html") # Try to add the client to the database
         if add_client(email, client_name, phone, address, company):
             flash("Registration successful! You can now log in.", 'success')
             return redirect(url_for('login'))  # Redirect to login page
@@ -1207,14 +1534,419 @@ def register():
     return render_template("register.html")
 
 
+@app.route("/api/orders/inquired")
+def get_inquired_items():
+    """API endpoint to get ALL items that have ever been ordered with counts"""
+    if not session.get("authenticated") or not session.get("is_admin"):
+        return jsonify({"error": "Unauthorized"}), 401
 
+    try:
+        conn = sqlite3.connect(DATABASE)
+        cur = conn.cursor()
+
+        # Get ALL products that have ever been ordered, regardless of status
+        query = """
+                SELECT product_name, COUNT(*) as order_count
+                FROM orders
+                GROUP BY product_name
+                ORDER BY order_count DESC, product_name ASC \
+                """
+
+        cur.execute(query)
+        rows = cur.fetchall()
+        conn.close()
+
+        # Format results
+        items = []
+        for row in rows:
+            items.append({
+                "product_name": row[0],
+                "order_count": row[1]
+            })
+
+        return jsonify(items)
+
+    except Exception as e:
+        print(f"❌ Error in get_inquired_items: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+
+
+@app.route("/api/dashboard-data")
+def dashboard_data():
+    conn = sqlite3.connect(DATABASE)
+    cur = conn.cursor()
+    # UAE timezone
+    now_uae = datetime.now(ZoneInfo("Asia/Dubai"))
+    one_week_ago = now_uae - timedelta(days=7)
+    # --- Metrics ---
+    cur.execute("SELECT COUNT(*) FROM orders WHERE datetime(created_at) >= ?", (one_week_ago,))
+    orders_this_week = cur.fetchone()[0]
+
+    cur.execute("SELECT COUNT(*) FROM orders WHERE status IN ('inquiry placed', 'quote sent')")
+    unplaced_orders = cur.fetchone()[0]
+
+    cur.execute("SELECT COUNT(*) FROM orders WHERE status = 'delivered'")
+    delivered_count = cur.fetchone()[0]
+
+    cur.execute("SELECT COUNT(*) FROM products WHERE stock_status = 'in_stock'")
+    in_stock_products = cur.fetchone()[0]
+
+    cur.execute("SELECT COUNT(*) FROM users")
+    total_clients = cur.fetchone()[0]
+
+    return jsonify({
+        "orders_this_week": orders_this_week,
+        "delivered_count": delivered_count,
+        "in_stock_products": in_stock_products,
+        "total_clients": total_clients,"unplaced_orders": unplaced_orders
+    })
+
+
+
+
+@app.route("/api/orders/<category>")
+def get_orders_by_category(category):
+    """API endpoint to get orders by category"""
+    if not session.get("authenticated") or not session.get("is_admin"):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        conn = sqlite3.connect(DATABASE)
+        cur = conn.cursor()
+
+        now_uae = datetime.now(ZoneInfo("Asia/Dubai"))
+        one_week_ago = (now_uae - timedelta(days=7)).strftime("%Y-%m-%d %H:%M:%S")
+
+        # Define queries based on category
+        if category == "week":
+            query = """
+                    SELECT id, \
+                           product_name, \
+                           user_email, \
+                           quantity, \
+                           expected_date,
+                           status, \
+                           last_updated, \
+                           comments, \
+                           created_at
+                    FROM orders
+                    WHERE datetime(last_updated) >= ?
+                    ORDER BY datetime(last_updated) DESC \
+                    """
+            params = (one_week_ago,)
+
+        elif category == "delivered":
+            query = """
+                    SELECT id, \
+                           product_name, \
+                           user_email, \
+                           quantity, \
+                           expected_date,
+                           status, \
+                           last_updated, \
+                           comments, \
+                           created_at
+                    FROM orders
+                    WHERE status = 'delivered'
+                    ORDER BY datetime(last_updated) DESC \
+                    """
+            params = ()
+
+        elif category == "pending":
+            query= """
+                        SELECT id, \
+                           product_name, \
+                           user_email, \
+                           quantity, \
+                           expected_date,
+                           status, \
+                           last_updated, \
+                           comments, \
+                           created_at
+                        FROM orders
+                        WHERE status IN ('dispatched', 'order placed')
+                        ORDER BY last_updated DESC
+                        """
+            params = ()
+
+
+        elif category == "dispatched":
+            query = """
+                    SELECT id, \
+                           product_name, \
+                           user_email, \
+                           quantity, \
+                           expected_date,
+                           status, \
+                           last_updated, \
+                           comments, \
+                           created_at
+                    FROM orders
+                    WHERE status = 'dispatched'
+                    ORDER BY datetime(last_updated) DESC \
+                    """
+            params = ()
+
+        elif category == "unplaced":
+            query = """
+                    SELECT id,
+                           product_name,
+                           user_email,
+                           quantity,
+                           expected_date,
+                           status,
+                           last_updated,
+                           comments,
+                           created_at
+                    FROM orders
+                    WHERE status IN ('inquiry received', 'quote sent')
+                    ORDER BY last_updated DESC \
+                    """
+            params = ()
+
+
+        else:
+            return jsonify({"error": "Invalid category"}), 400
+
+        # Execute query
+        cur.execute(query, params)
+        rows = cur.fetchall()
+        conn.close()
+
+        # Format results
+        orders = []
+        for row in rows:
+            orders.append({
+                "id": row[0],
+                "product_name": row[1],
+                "client_email": row[2],  # user_email from database
+                "quantity": row[3],
+                "expected_date": row[4],
+                "order_status": row[5],
+                "last_updated": row[6],
+                "comments": row[7] if row[7] else "",
+                "created_at": row[8]
+            })
+
+        return jsonify(orders)
+
+    except Exception as e:
+        print(f"❌ Error in get_orders_by_category: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/delivered-by-category")
+def delivered_by_category():
+    conn = sqlite3.connect(DATABASE)
+    cur = conn.cursor()
+
+    # 1 — Get delivered orders joined with product category
+    cur.execute("""
+        SELECT 
+            o.id,
+            o.product_name,
+            o.user_email,
+            o.last_updated,
+            p.category
+        FROM orders o
+        JOIN products p ON LOWER(o.product_name) = LOWER(p.product_name)
+        WHERE o.status = 'delivered'
+        ORDER BY p.category, o.last_updated DESC
+    """)
+
+    rows = cur.fetchall()
+    conn.close()
+
+    categories = {}
+
+    # Organize by category
+    for row in rows:
+        order_id, product, email, delivered_at, category = row
+
+        if category not in categories:
+            categories[category] = []
+
+        categories[category].append({
+            "id": order_id,
+            "product": product,
+            "client": email,
+            "delivered_at": delivered_at
+        })
+
+    return jsonify(categories)
+
+
+
+
+
+
+@app.route("/api/orders/clients")
+def get_client_orders():
+    """API endpoint to get all clients with their order details and product breakdown"""
+    if not session.get("authenticated") or not session.get("is_admin"):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        conn = sqlite3.connect(DATABASE)
+        cur = conn.cursor()
+
+        # Get all clients with their total order counts
+        cur.execute("""
+            SELECT user_email, COUNT(*) as total_orders
+            FROM orders
+            GROUP BY user_email
+            ORDER BY total_orders DESC, user_email ASC
+        """)
+        clients = cur.fetchall()
+
+        # For each client, get their product breakdown
+        client_data = []
+        for client in clients:
+            email = client[0]
+            total_orders = client[1]
+
+            # Get product breakdown for this client
+            cur.execute("""
+                SELECT product_name, COUNT(*) as product_count
+                FROM orders
+                WHERE user_email = ?
+                GROUP BY product_name
+                ORDER BY product_count DESC
+            """, (email,))
+            products = cur.fetchall()
+
+            product_breakdown = [
+                {"product_name": p[0], "count": p[1]}
+                for p in products
+            ]
+
+            client_data.append({
+                "email": email,
+                "total_orders": total_orders,
+                "products": product_breakdown
+            })
+
+        conn.close()
+        return jsonify(client_data)
+
+    except Exception as e:
+        print(f"❌ Error in get_client_orders: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+
+@app.route("/api/timeline/months")
+def get_timeline_months():
+    conn = sqlite3.connect(DATABASE)
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT DISTINCT strftime('%Y-%m', created_at) AS ym
+        FROM orders
+        WHERE created_at >= '2025-10-01'
+        ORDER BY ym DESC
+    """)
+
+    months = [row[0] for row in cur.fetchall()]
+    conn.close()
+
+    return jsonify(months)
+
+@app.route("/api/timeline/orders/<month>")
+def get_timeline_orders(month):
+    conn = sqlite3.connect(DATABASE)
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT id, product_name, user_email, status, created_at
+        FROM orders
+        WHERE strftime('%Y-%m', created_at) = ?
+        ORDER BY created_at DESC
+    """, (month,))
+
+    rows = cur.fetchall()
+    conn.close()
+
+    results = [
+        {
+            "id": r[0],
+            "product_name": r[1],
+            "user_email": r[2],
+            "status": r[3],
+            "created_at": r[4]
+        }
+        for r in rows
+    ]
+
+    return jsonify(results)
+
+
+@app.route("/api/payment-status")
+def payment_status_api():
+    conn = sqlite3.connect(DATABASE)
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT id, product_name, user_email, quantity, status,
+               payment_status, created_at, last_updated
+        FROM orders
+        WHERE status IN ('order placed', 'dispatched', 'delivered')
+        ORDER BY last_updated DESC
+    """)
+    rows = cur.fetchall()
+    conn.close()
+
+    results = []
+    for r in rows:
+        results.append({
+            "id": r[0],
+            "product_name": r[1],
+            "user_email": r[2],
+            "quantity": r[3],
+            "status": r[4],
+            "payment_status": r[5] or "unpaid",
+            "created_at": r[6],
+            "last_updated": r[7]
+        })
+
+    return jsonify(results)
+
+@app.route("/api/payment-status/update/<int:order_id>", methods=["POST"])
+def update_payment_status(order_id):
+    data = request.get_json()
+    new_status = data.get("payment_status", "unpaid")
+
+    conn = sqlite3.connect(DATABASE)
+    cur = conn.cursor()
+    cur.execute("""
+        UPDATE orders SET payment_status = ?
+        WHERE id = ?
+    """, (new_status, order_id))
+    conn.commit()
+    conn.close()
+
+    return jsonify({"success": True})
+
+
+
+
+def get_unread_message_count(user_email):
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT COUNT(*) FROM messages 
+        WHERE user_email = ? AND (is_read = 0 OR is_read IS NULL)
+    """, (user_email,))
+    count = cursor.fetchone()[0]
+    conn.close()
+    return count
 @app.route("/logout")
 def logout():
     """Logout route - clears session"""
     session.clear()
     flash("You have been logged out successfully")
     return redirect(url_for("login"))
-
 
 if __name__ == "__main__":
     init_db()

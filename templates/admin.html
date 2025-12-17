@@ -11,8 +11,7 @@
         body {
             background-color: #1a2b1f;
             color: #ffffff;
-            font-family: Arial, sans-serif;
-        }
+            font-family: Arial, sans-serif;}
         .sidebar {
             height: 100vh;
             width: 250px;
@@ -22,11 +21,9 @@
             background-color: #2a3b2f;
             transition: left 0.3s ease;
             padding-top: 100px;
-            z-index: 1000;
-        }
+            z-index: 1000;}
         .sidebar.active {
-            left: 0;
-        }
+            left: 0;}
         .sidebar-toggle {
             position: fixed;
             top: 80px;
@@ -60,6 +57,66 @@
             background-color: #6ba581;
             padding-left: 41px;
         }
+        .section .shadow {
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.section .shadow:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(74, 124, 89, 0.4);
+}
+.metric-card {
+            background-color: #3a5e46;
+            border: 1px solid #4a7c59;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(74, 124, 89, 0.4);
+        }
+        .metric-card.non-clickable {
+            cursor: default;
+        }
+        .metric-card.non-clickable:hover {
+            transform: none;
+        }
+        .modal-content {
+            background-color: #2a3b2f;
+            color: #ffffff;
+        }
+        .modal-header {
+            border-bottom: 1px solid #4a7c59;
+        }
+        .table-dark {
+            background-color: #1a2b1f;
+        }
+        .table-dark th, .table-dark td {
+            border-color: #4a7c59;
+            color: #ffffff;
+        }
+        #deliveredCategoryModal .table {
+  background: transparent;
+  color: #ffffff;
+}
+#deliveredCategoryModal .table.table-dark {
+  background-color: transparent; /* let the modal background show through */
+}
+#deliveredCategoryModal .table.table-dark thead th {
+  background-color: rgba(74,124,89,0.08);
+  color: #a8d5ba;
+  border-color: rgba(74,124,89,0.25);
+}
+#deliveredCategoryModal .table.table-dark tbody td {
+  background-color: rgba(0,0,0,0); /* transparent rows */
+  color: #eaf6ec;
+  border-color: rgba(74,124,89,0.12);
+}
+
+
 
     </style>
 </head>
@@ -106,11 +163,10 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
-
         {% if section == "manage-clients" %}
             <div class="section">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2>Manage Clients</h2>
+                    <h2> <strong>Manage Clients</strong></h2>
                     <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addClientModal">
                         Add New Client
                     </button>
@@ -209,33 +265,26 @@
                     </div>
                 </div>
             </div>
-
-
 {% elif section == "client-orders" %}
         <div class="section">
-            <h2 style="padding-bottom: 20px">Client Orders</h2>
+            <h2 style="padding-bottom: 20px"><strong>Client Orders and Inquiries</strong></h2>
                 {% if orders %}
                 <div class="list-group">
         {% for order in orders %}
         <div class="list-group-item list-group-item-action mb-2"
              style="background:#3a5e46; color:white;padding-bottom: 10px ">
             <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1">{{ order[7] }} ({{ order[3] }})</h5>
-                <small>{{ order[6] }}</small>
+                <h4> <strong>Order #{{ order[0] }}: </strong>{{ order[7] }} ({{ order[3] }})</h4>
+                <small>Ordered at: {{ order[6]  }}</small>
             </div>
-            <p class="mb-1"><strong>Client:</strong> {{ order[5] }}</p>
-            <p class="mb-1"><strong>Expected:</strong> {{ order[2] }}</p>
+            <p class="mb-1"><strong>1. Client:</strong> {{ order[5] }}</p>
+            <p class="mb-1"><strong>2. Expected:</strong> {{ order[2] }}</p>
             {% if order[4] %}
-            <p class="mb-1"><strong>Comments:</strong> {{ order[4] }}</p>
+            <p class="mb-1"><strong>3. Comments:</strong> {{ order[4] }}</p>
             {% endif %}
-             <form method="POST" action="{{ url_for('update_order', order_id=order[0]) }}" class="d-inline">
-                <select name="status" class="form-select form-select-sm d-inline w-auto" onchange="this.form.submit()">
-                    {% set statuses = ["received","quote sent","confirmed","dispatched","delivered","cancelled"] %}
-                    {% for s in statuses %}
-                        <option value="{{ s }}" {% if order[8] == s %}selected{% endif %}>{{ s|capitalize }}</option>
-                    {% endfor %}
-                </select>
-            </form>
+            <p class="mb-1"><strong>4. Last Updated:</strong> {{ order[9] }}</p>
+
+            <h5 style="padding-bottom: 20px"><strong>> Order Status:</strong> {{ order[8]|capitalize }}</h5>
 
             <!-- Delete Button -->
             <form method="POST" action="{{ url_for('delete_order', order_id=order[0]) }}"
@@ -243,10 +292,40 @@
                   onsubmit="return confirm('Are you sure you want to delete this order?');">
                 <button type="submit" class="btn btn-danger btn-sm">Delete</button>
             </form>
-
-
-
-
+            <a href="https://mail.google.com/mail/?view=cm&fs=1&to={{ order[5] }}&su=Regarding Order #{{ order[0] }} - {{ order[7] }}"
+   target="_blank"
+   class="btn btn-info btn-sm">
+     Send An Email
+</a>
+            {% if order[8] == "received" or order[8] == "inquiry received" %}
+            <button type="button" class="btn btn-primary btn-sm"
+                data-bs-toggle="modal"
+                data-bs-target="#quotationModal"
+                data-order-id="{{ order[0] }}"
+                data-client-email="{{ order[5] }}"
+                data-product-name="{{ order[7] }}"
+                onclick="openQuotationModal(this)" style="color: black">
+            Send Quotation
+        </button>
+            {% elif order[8] == "order placed" %}
+            <form method="POST"
+      action="{{ url_for('dispatch_order', order_id=order[0]) }}"
+      style="display:inline;"
+      onsubmit="return confirm('Are you sure you want to dispatch this order? An email will be sent to {{ order[5] }}.');">
+    <button type="submit" class="btn btn-primary btn-sm" style="background-color: cornflowerblue; color: black">
+         Dispatch Order
+    </button>
+</form>{% elif order[8] == "dispatched" %}
+    <!-- Mark as Delivered Form with Confirmation -->
+    <form method="POST" action="{{ url_for('mark_delivered', order_id=order[0]) }}"
+          style="display:inline;"
+          onsubmit="return confirm('Are you sure you want to mark this order as delivered? This will notify the client via email.');">
+        <button type="submit" class="btn btn-success btn-sm"
+                style="background-color: #28a745; color: white">
+            Send "Delivered" Message
+        </button>
+    </form>
+            {% endif %}
         </div>
         {% endfor %}
     </div>
@@ -254,12 +333,54 @@
     <p class="text-muted">No orders yet.</p>
     {% endif %}
 </div></div>
+    <div class="modal fade" id="quotationModal" tabindex="-1" aria-labelledby="quotationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="quotationModalLabel">Send Quotation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('send_quotation') }}" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" id="orderId" name="id">
+
+                    <div class="mb-3">
+                        <label for="clientEmail" class="form-label">Client Email</label>
+                        <input type="email" class="form-control" id="clientEmail" name="user_email" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="productInfo" class="form-label">Product Information</label>
+                        <input type="text" class="form-control" id="productInfo" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="messageBody" class="form-label">Message</label>
+                        <textarea class="form-control" id="messageBody" name="message" rows="6" required
+                                  placeholder="Enter your quotation message here..."></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="attachment" class="form-label">Attachment (Optional)</label>
+                        <input type="file" class="form-control" id="attachment" name="attachment">
+                        <div class="form-text">Upload quotation document, PDF, or other relevant files.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary"
+                            onclick="return confirm('Are you sure this is the quotation you want to send to this client?')">Send Quotation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 
 
         {% elif section == "manage-products" %}
 <div class="section">
-    <h2 style="padding-bottom: 15px">Manage Products</h2>
+    <h2 style="padding-bottom: 15px"><strong>Manage Products</strong></h2>
     {% for category in all_categories %}
     <div class="product-category mb-3">
         <div class="category-header d-flex justify-content-between align-items-center"
@@ -304,7 +425,6 @@
                                             <span class="badge bg-danger">Out of Stock</span>
                                         {% endif %}
                                     </p>
-
                                     {% if product.image %}
                                     <img src="{{ url_for('static', filename='uploads/products/' + product.image) }}"
                                          class="img-fluid mb-2" style="max-height:150px; object-fit:contain;">
@@ -314,7 +434,6 @@
                                          No Image
                                     </div>
                                     {% endif %}
-
                                     <div class="mt-auto d-flex gap-2">
                                         <button class="btn btn-warning btn-sm flex-fill"
                                                 onclick='openEditProductModal({{ product|tojson }}, "{{ category }}")'>Edit</button>
@@ -411,14 +530,194 @@
 
         {% else %}
             <div class="section">
-                <h2>Welcome to the Admin Panel</h2>
+  <h2 style="color:white; padding-bottom: 20px;"><strong>Admin Dashboard Overview</strong></h2>
+  <div class="row g-4">
+           <!-- Unplaced Orders -->
+<div class="col-md-3 col-sm-6">
+    <div class="metric-card" onclick="openOrdersModal('unplaced')">
+        <i class="fas fa-hourglass-half fa-2x mb-3" style="color:#a8d5ba;"></i>
+        <h5 class="text-white">Total Remaining Inquiries</h5>
+        <h2 id="unplacedOrders" style="color:#e3c567;">{{ unplaced_orders }}</h2>
+    </div>
+</div>
+      <!-- Orders Delivered (Clickable) -->
+            <div class="col-md-3 col-sm-6">
+                <div class="metric-card" onclick="openOrdersModal('delivered')">
+                    <i class="fas fa-truck fa-2x mb-3" style="color:#a8d5ba;"></i>
+                    <h5 class="text-white">Orders Delivered</h5>
+                    <h2 id="deliveredCount" style="color:#6ba581;">{{ delivered_count }}</h2>
+                </div>
             </div>
 
-        {% endif %}
+            <!-- Products In Stock (Non-clickable) -->
+            <div class="col-md-3 col-sm-6">
+                <a href="{{ url_for('manage_products') }}" class="text-decoration-none">
+                <div class="metric-card">
+                    <i class="fas fa-box-open fa-2x mb-3" style="color:#a8d5ba;"></i>
+                    <h5 class="text-white">Product Catalog</h5>
+                        <h2 id="inStockProducts" style="color:#6ba581;">{{ in_stock_products }}</h2>
+                </div></a>
+            </div>
+
+            <!-- Registered Clients (Non-clickable) -->
+            <div class="col-md-3 col-sm-6">
+                <a href="{{ url_for('manage_clients') }}" class="text-decoration-none">
+                <div class="metric-card">
+                    <i class="fas fa-users fa-2x mb-3" style="color:#a8d5ba;"></i>
+                    <h5 class="text-white">Registered Clients</h5>
+                    <h2 id="totalClients" style="color:#6ba581;">{{ total_clients }}</h2>
+                </div></a>
+            </div>
+
+            <!-- Pending Orders (Clickable) -->
+            <div class="col-md-4 col-sm-6">
+                <div class="metric-card" onclick="openOrdersModal('pending')">
+                    <i class="fas fa-clock fa-2x mb-3" style="color:#a8d5ba;"></i>
+                    <h5 class="text-white">Pending Orders</h5>
+                    <h2 id="pendingOrders" style="color:#e3c567;">{{ pending_orders }}</h2>
+                </div>
+            </div>
+
+      <!--Order Timeline-->
+            <div class="col-md-4 col-sm-6">
+    <div class="metric-card" onclick="openTimelineModal()">
+        <i class="fas fa-calendar-alt fa-2x mb-3" style="color:#a8d5ba;"></i>
+        <h5 class="text-white">Order Timeline</h5>
+        <h3 style="color:#6ba581;">From Oct 2025</h3>
+        <small style="color:#a8d5ba;">View by month</small>
     </div>
+</div>
+<!--Payment Status-->
+      <div class="col-md-4 col-sm-6">
+    <div class="metric-card" onclick="openPaymentStatusModal()">
+        <i class="fas fa-money-bill-wave fa-2x mb-3" style="color:#a8d5ba;"></i>
+        <h5 class="text-white">Payment Status</h5>
+        <h3 id="paymentStatusCount" style="color:#6ba581;">
+            {{ payment_status_count }} unpaid orders
+        </h3>
+        <small style="color:#a8d5ba;">View Each Order</small>
+    </div>
+</div>
+
+
+            <!-- Dispatched Orders (Clickable)
+            <div class="col-md-4 col-sm-6">
+                <div class="metric-card" onclick="openOrdersModal('dispatched')">
+                    <i class="fas fa-shipping-fast fa-2x mb-3" style="color:#a8d5ba;"></i>
+                    <h5 class="text-white">Dispatched Orders</h5>
+                    <h2 id="dispatchedCount" style="color:#6ba581;">{{ dispatched_count }}</h2>
+                </div>
+            </div> -->
+      <!--Most Active Clients-->
+      <div class="col-md-4 col-sm-6">
+    <div class="metric-card" onclick="openOrdersModal('clients')">
+        <i class="fas fa-user-tie fa-2x mb-3" style="color:#a8d5ba;"></i>
+        <h5 class="text-white">Most Active Client</h5>
+        <h3 id="mostActiveClient" style="color:#6ba581;">{{ most_active_client if most_active_client else 'No Orders Yet' }}</h3>
+    </div>
+</div>
+
+      <!--Most Inquired Item-->
+      <div class="col-md-4 col-sm-6">
+                <div class="metric-card" onclick="openOrdersModal('inquired')">
+                    <i class="fas fa-question-circle fa-2x mb-3" style="color:#a8d5ba;"></i>
+                    <h5 class="text-white">Most Inquired Item(s)</h5>
+                    <h3 id="mostInquiredItem" style="color:#6ba581;">{{ most_inquired_item }}</h3>
+                </div>
+            </div>
+      <!-- Delivered Orders by Category -->
+<div class="col-md-4 col-sm-6">
+    <div class="metric-card" onclick="openDeliveredByCategory()">
+        <i class="fas fa-layer-group fa-2x mb-3" style="color:#a8d5ba;"></i>
+        <h5 class="text-white">Delivered Orders by Category</h5>
+        <h3 style="color:#6ba581;">View Details</h3>
+    </div>
+</div>
+
+
+
+
+        </div>
+    </div>
+                <div class="modal fade" id="ordersModal" tabindex="-1" aria-labelledby="ordersModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ordersModalLabel">Orders</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="ordersTableContainer">
+                        <p class="text-center text-muted">Loading orders...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="timelineModal" tabindex="-1" aria-labelledby="timelineModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content" style="background-color:#2a3b2f; color:white;">
+      <div class="modal-header">
+        <h5 class="modal-title" id="timelineModalLabel">Order Timeline</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter: invert(1);"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- Month dropdown -->
+        <label class="text-white mb-2">Select Month:</label>
+        <select id="timelineMonthSelect" class="form-select mb-3" style="background:#3a5e46; color:white; border:1px solid #4a7c59;">
+            <option value="">Loading...</option>
+        </select>
+
+        <!-- Orders Table -->
+        <div id="timelineTableContainer">
+            <p class="text-muted">Select a month to load data.</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+    <div class="modal fade" id="deliveredCategoryModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content" style="background:#2a3b2f; color:white;">
+      <div class="modal-header">
+        <h5 class="modal-title">Delivered Orders by Category</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter:invert(1)"></button>
+      </div>
+
+      <div class="modal-body" id="deliveredCategoryBody">
+        <p class="text-muted">Loading...</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+    <div class="modal fade" id="paymentStatusModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content" style="background-color:#2a3b2f; color:white;">
+      <div class="modal-header">
+        <h5 class="modal-title">Payment Status</h5>
+        <button class="btn-close" data-bs-dismiss="modal" style="filter:invert(1);"></button>
+      </div>
+      <div class="modal-body" id="paymentStatusBody">
+        <p class="text-muted">Loading...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    {% endif %}
 
     <!-- Bootstrap JS and Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script> function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             sidebar.classList.toggle('active');
@@ -535,8 +834,565 @@ document.getElementById('addProductModal').addEventListener('hidden.bs.modal', f
             <button type="button" class="remove-option" onclick="removeOption(this)" style="display:none;">Remove</button>
         </div>
     `;
-});
-    </script>
+});function openQuotationModal(button) {
+    const orderId = button.getAttribute('data-order-id');
+    const clientEmail = button.getAttribute('data-client-email');
+    const productName = button.getAttribute('data-product-name');
+    document.getElementById('orderId').value = orderId;
+    document.getElementById('clientEmail').value = clientEmail;
+    document.getElementById('productInfo').value = productName;
+    // Clear previous message and attachment
+    document.getElementById('messageBody').value = '';
+    document.getElementById('attachment').value = '';
+    // Update modal title
+    document.getElementById('quotationModalLabel').textContent = `Send Quotation - Order #${orderId}`;
+}
 
+ async function openOrdersModal(type) {
+    console.log('Opening modal for type:', type);
+
+    // Set modal title based on type
+    const titles = {
+        'week': 'Orders This Week',
+        'delivered': 'Delivered Orders',
+        'pending': 'Pending Orders',
+        'dispatched': 'Dispatched Orders',
+        'inquired': 'Most Inquired Items',
+        'clients': 'Client Order Statistics',
+        'timeline': 'Order Timeline - Monthly Breakdown'
+    };
+
+    document.getElementById('ordersModalLabel').textContent = titles[type] || 'Orders';
+
+    // Show loading state
+    document.getElementById('ordersTableContainer').innerHTML =
+        '<p class="text-center text-muted">Loading...</p>';
+
+    // Show the modal
+    const modal = new bootstrap.Modal(document.getElementById('ordersModal'));
+    modal.show();
+
+    // Fetch data from API
+    try {
+        const response = await fetch(`/api/orders/${type}`);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Received data:', data);
+
+        // Display the data based on type
+        if (type === 'inquired') {
+            displayInquiredItems(data);
+        } else if (type === 'clients') {
+            displayClientOrders(data);
+        } else if (type === 'timeline') {
+            displayOrderTimeline(data);
+        } else {
+            displayOrders(data);
+        }
+
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        document.getElementById('ordersTableContainer').innerHTML =
+            `<div class="alert alert-danger">Failed to load data: ${error.message}</div>`;
+    }
+}
+
+        // Function to display orders in a table
+
+        // Helper function to get badge color based on status
+        function getStatusBadgeClass(status) {
+            const statusMap = {
+                'delivered': 'bg-success',
+                'dispatched': 'bg-info',
+                'pending': 'bg-warning',
+                'inquiry received': 'bg-secondary',
+                'quote sent': 'bg-primary',
+                'order placed': 'bg-info',
+                'cancelled': 'bg-danger'
+            };
+            return statusMap[status?.toLowerCase()] || 'bg-secondary';
+        }
+function displayOrders(orders) {
+    const container = document.getElementById('ordersTableContainer');
+
+    if (!orders || orders.length === 0) {
+        container.innerHTML = '<p class="text-center text-muted">No orders found.</p>';
+        return;
+    }
+
+    // Build the table HTML
+    let html = `
+        <div class="table-responsive">
+            <table class="table table-dark table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Product Name</th>
+                        <th>Client Email</th>
+                        <th>Quantity</th>
+                        <th>Expected Date</th>
+                        <th>Status</th>
+                        <th>Last Updated</th>
+                        <th>Comments</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    orders.forEach(order => {
+        html += `
+            <tr>
+                <td>#${order.id}</td>
+                <td>${order.product_name || 'N/A'}</td>
+                <td>${order.client_email || 'N/A'}</td>
+                <td>${order.quantity || 'N/A'}</td>
+                <td>${order.expected_date || 'N/A'}</td>
+                <td>
+                    <span class="badge ${getStatusBadgeClass(order.order_status)}">
+                        ${order.order_status || 'Unknown'}
+                    </span>
+                </td>
+                <td>${order.last_updated || 'N/A'}</td>
+                <td>${order.comments || '-'}</td>
+            </tr>
+        `;
+    });
+
+    html += `
+                </tbody>
+            </table>
+        </div>
+    `;
+
+    container.innerHTML = html;
+}
+// Display all items that have ever been ordered with counts
+function displayInquiredItems(items) {
+    const container = document.getElementById('ordersTableContainer');
+
+    if (!items || items.length === 0) {
+        container.innerHTML = '<p class="text-center" style="color:#a8d5ba;">No orders found in the system.</p>';
+        return;
+    }
+
+    // Build the table HTML with dark theme
+    let html = `
+        <div class="table-responsive">
+            <table class="table table-dark table-hover" style="background-color:#1a2b1f;">
+                <thead style="background-color:#2a3b2f; border-bottom: 2px solid #4a7c59;">
+                    <tr>
+                        <th style="color:#a8d5ba; width: 80px;">#</th>
+                        <th style="color:#a8d5ba;">Product Name</th>
+                        <th style="color:#a8d5ba; text-align: center; width: 200px;">Total Orders</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    items.forEach((item, index) => {
+        // Highlight the top 3 most ordered items with special styling
+        let backgroundColor = '#2a3b2f';
+        let textColor = '#ffffff';
+        let badgeColor = '#4a7c59';
+        let rankBadge = '';
+
+        if (index === 0) {
+            backgroundColor = '#4a5c3e';
+            rankBadge = '<span style="color: #ffd700; font-size: 1.2rem; margin-right: 8px;">👑</span>';
+            badgeColor = '#ffd700';
+        } else if (index === 1) {
+            backgroundColor = '#3e4a4a';
+            rankBadge = '<span style="color: #c0c0c0; font-size: 1.1rem; margin-right: 8px;">🥈</span>';
+            badgeColor = '#c0c0c0';
+        } else if (index === 2) {
+            backgroundColor = '#4a453e';
+            rankBadge = '<span style="color: #cd7f32; font-size: 1.1rem; margin-right: 8px;">🥉</span>';
+            badgeColor = '#cd7f32';
+        }
+
+        html += `
+            <tr style="background-color: ${backgroundColor}; transition: all 0.3s ease;"
+                onmouseover="this.style.backgroundColor='#3a5e46'"
+                onmouseout="this.style.backgroundColor='${backgroundColor}'">
+                <td style="color:${textColor}; font-weight: bold; font-size: 1.1rem;">
+                    ${rankBadge}${index + 1}
+                </td>
+                <td style="color:${textColor}; font-size: 1rem;">
+                    ${item.product_name}
+                </td>
+                <td style="text-align: center;">
+                    <span class="badge" style="background-color: ${badgeColor}; color: #1a2b1f; font-size: 1rem; padding: 8px 16px; border-radius: 20px;">
+                        ${item.order_count} ${item.order_count === 1 ? 'order' : 'orders'}
+                    </span>
+                </td>
+            </tr>
+        `;
+    });
+
+    html += `
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-3 text-center" style="color:#a8d5ba; padding: 15px; background-color:#2a3b2f; border-radius: 8px;">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Total unique products ordered:</strong> ${items.length} |
+            <strong>Total orders:</strong> ${items.reduce((sum, item) => sum + item.order_count, 0)}
+        </div>
+    `;
+
+    container.innerHTML = html;
+}
+
+// Helper function to get badge color based on status
+function getStatusBadgeClass(status) {
+    const statusMap = {
+        'delivered': 'bg-success',
+        'dispatched': 'bg-info',
+        'pending': 'bg-warning',
+        'inquiry received': 'bg-secondary',
+        'quote sent': 'bg-primary',
+        'order placed': 'bg-info',
+        'cancelled': 'bg-danger'
+    };
+    return statusMap[status?.toLowerCase()] || 'bg-secondary';
+}
+// Display client order statistics with product breakdown
+function displayClientOrders(clients) {
+    const container = document.getElementById('ordersTableContainer');
+
+    if (!clients || clients.length === 0) {
+        container.innerHTML = '<p class="text-center" style="color:#a8d5ba;">No client orders found.</p>';
+        return;
+    }
+
+    // Build the accordion-style HTML with dark theme
+    let html = `
+        <div class="accordion" id="clientAccordion" style="background-color:#1a2b1f;">
+    `;
+    clients.forEach((client, index) => {
+        // Highlight the top 3 most active clients
+        let rankBadge = '';
+        let headerColor = '#2a3b2f';
+
+        if (index === 0) {
+            rankBadge = '<span style="color: #ffd700; font-size: 1.2rem; margin-right: 8px;">👑</span>';
+            headerColor = '#3e4a3e';
+        } else if (index === 1) {
+            rankBadge = '<span style="color: #c0c0c0; font-size: 1.1rem; margin-right: 8px;">🥈</span>';
+            headerColor = '#3a4040';
+        } else if (index === 2) {
+            rankBadge = '<span style="color: #cd7f32; font-size: 1.1rem; margin-right: 8px;">🥉</span>';
+            headerColor = '#3e3a35';
+        }
+
+        html += `
+            <div class="accordion-item" style="background-color: ${headerColor}; border: 1px solid #4a7c59; margin-bottom: 10px; border-radius: 8px;">
+                <h2 class="accordion-header" id="heading${index}">
+                    <button class="accordion-button collapsed" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#collapse${index}"
+                            aria-expanded="false" aria-controls="collapse${index}"
+                            style="background-color: ${headerColor}; color: #ffffff; border: none; font-size: 1.1rem; padding: 15px 20px;">
+                        ${rankBadge}
+                        <strong style="color: #a8d5ba; margin-right: 15px;">#${index + 1}</strong>
+                        <span style="flex-grow: 1;">${client.email}</span>
+                        <span class="badge" style="background-color: #4a7c59; color: white; font-size: 0.9rem; padding: 6px 12px; border-radius: 15px; margin-left: 15px;">
+                            ${client.total_orders} ${client.total_orders === 1 ? 'order' : 'orders'}
+                        </span>
+                    </button>
+                </h2>
+                <div id="collapse${index}" class="accordion-collapse collapse"
+                     aria-labelledby="heading${index}" data-bs-parent="#clientAccordion">
+                    <div class="accordion-body" style="background-color: #1a2b1f; padding: 20px;">
+                        <h6 style="color: #a8d5ba; margin-bottom: 15px;">
+                            <i class="fas fa-box me-2"></i>Product Breakdown:
+                        </h6>
+                        <table class="table table-dark table-sm" style="background-color: #2a3b2f;">
+                            <thead style="background-color: #3a5e46;">
+                                <tr>
+                                    <th style="color: #a8d5ba; width: 70%;">Product Name</th>
+                                    <th style="color: #a8d5ba; text-align: center;">Quantity Ordered</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+        `;
+
+        // Add each product for this client
+        client.products.forEach(product => {
+            html += `
+                <tr style="border-bottom: 1px solid #4a7c59;">
+                    <td style="color: #ffffff; padding: 10px;">${product.product_name}</td>
+                    <td style="text-align: center; padding: 10px;">
+                        <span class="badge bg-primary" style="font-size: 0.9rem; padding: 5px 10px;">
+                            ${product.count}
+                        </span>
+                    </td>
+                </tr>
+            `;
+        });
+
+        html += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    html += `
+        </div>
+        <div class="mt-3 text-center" style="color:#a8d5ba; padding: 15px; background-color:#2a3b2f; border-radius: 8px;">
+            <i class="fas fa-users me-2"></i>
+            <strong>Total active clients:</strong> ${clients.length} |
+            <strong>Total orders:</strong> ${clients.reduce((sum, client) => sum + client.total_orders, 0)}
+        </div>
+    `;
+
+    container.innerHTML = html;
+}
+function openTimelineModal() {
+    const modal = new bootstrap.Modal(document.getElementById('timelineModal'));
+    modal.show();
+
+    loadTimelineMonths();
+}
+
+async function loadTimelineMonths() {
+    const dropdown = document.getElementById("timelineMonthSelect");
+    dropdown.innerHTML = `<option>Loading...</option>`;
+
+    try {
+        const res = await fetch("/api/timeline/months");
+        const months = await res.json();
+
+        if (months.length === 0) {
+            dropdown.innerHTML = `<option>No data</option>`;
+            return;
+        }
+
+        dropdown.innerHTML = months.map(m => {
+            let [y, mo] = m.split("-");
+            return `<option value="${m}">${y} - ${mo}</option>`;
+        }).join("");
+
+        dropdown.onchange = () => loadTimelineTable(dropdown.value);
+
+        // load the first month automatically
+        loadTimelineTable(months[0]);
+
+    } catch (err) {
+        dropdown.innerHTML = `<option>Error loading months</option>`;
+        console.error(err);
+    }
+}
+
+async function loadTimelineTable(month) {
+    const container = document.getElementById("timelineTableContainer");
+    container.innerHTML = `<p class='text-muted'>Loading...</p>`;
+
+    try {
+        const res = await fetch(`/api/timeline/orders/${month}`);
+        const orders = await res.json();
+
+        if (orders.length === 0) {
+            container.innerHTML = `<p class="text-muted">No orders in this month.</p>`;
+            return;
+        }
+
+        let html = `
+            <table class="table table-bordered table-dark">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Product</th>
+                        <th>Client</th>
+                        <th>Status</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        orders.forEach(o => {
+            html += `
+                <tr>
+                    <td>${o.id}</td>
+                    <td>${o.product_name}</td>
+                    <td>${o.user_email}</td>
+                    <td>${o.status}</td>
+                    <td>${o.created_at}</td>
+                </tr>`;
+        });
+
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+
+    } catch (err) {
+        container.innerHTML = `<p class="text-danger">Failed to load data.</p>`;
+        console.error(err);
+    }
+}
+
+async function openDeliveredByCategory() {
+    const modalBody = document.getElementById("deliveredCategoryBody");
+    modalBody.innerHTML = "<p class='text-muted'>Loading...</p>";
+
+    try {
+        const res = await fetch("/api/delivered-by-category");
+        if (!res.ok) throw new Error("Bad response");
+        const data = await res.json();
+
+        let html = `<table class="table table-dark table-striped">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Total Delivered</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+
+        Object.entries(data).forEach(([category, items], index) => {
+            let collapseId = `cat_${index}`;
+
+            html += `
+                <tr>
+                    <td>${category}</td>
+                    <td>${items.length}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-light"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#${collapseId}">
+                            View
+                        </button>
+                    </td>
+                </tr>
+
+                <tr class="collapse" id="${collapseId}">
+                    <td colspan="3">
+                        <table class="table table-sm table-bordered" style="color:white;">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Product</th>
+                                    <th>Client</th>
+                                    <th>Delivered On</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+
+            items.forEach(order => {
+                html += `
+                    <tr>
+                        <td>${order.id}</td>
+                        <td>${order.product}</td>
+                        <td>${order.client}</td>
+                        <td>${order.delivered_at}</td>
+                    </tr>`;
+            });
+
+            html += `
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            `;
+        });
+
+        html += "</tbody></table>";
+        modalBody.innerHTML = html;
+
+    } catch (e) {
+        modalBody.innerHTML = "<p class='text-danger'>Failed to load data.</p>";
+    }
+
+    new bootstrap.Modal(document.getElementById("deliveredCategoryModal")).show();
+
+
+}
+
+
+async function openPaymentStatusModal() {
+    const modal = new bootstrap.Modal(document.getElementById("paymentStatusModal"));
+    modal.show();
+
+    const body = document.getElementById("paymentStatusBody");
+    body.innerHTML = "<p class='text-muted'>Loading...</p>";
+
+    try {
+        const res = await fetch("/api/payment-status");
+        const orders = await res.json();
+
+        let html = `
+            <table class="table table-dark table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Product</th>
+                        <th>Client</th>
+                        <th>Status</th>
+                        <th>Payment</th>
+                        <th>Toggle</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        orders.forEach(o => {
+            html += `
+                <tr>
+                    <td>${o.id}</td>
+                    <td>${o.product_name}</td>
+                    <td>${o.user_email}</td>
+                    <td>${o.status}</td>
+                    <td>
+                        <span class="badge ${o.payment_status === 'paid' ? 'bg-success' : 'bg-danger'}">
+                            ${o.payment_status}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-light"
+                            onclick="togglePaymentStatus(${o.id}, '${o.payment_status}')">
+                            Mark ${o.payment_status === 'paid' ? 'Unpaid' : 'Paid'}
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        html += "</tbody></table>";
+        body.innerHTML = html;
+
+    } catch (e) {
+        body.innerHTML = `<p class="text-danger">Failed to load data.</p>`;
+    }
+}
+
+
+async function togglePaymentStatus(orderId, current) {
+    const newStatus = current === "paid" ? "unpaid" : "paid";
+
+    try {
+        const res = await fetch(`/api/payment-status/update/${orderId}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ payment_status: newStatus })
+        });
+
+        openPaymentStatusModal(); // Reload modal
+    } catch (e) {
+        alert("Failed to update payment status");
+    }
+}
+
+
+
+
+</script>
 </body>
 </html>

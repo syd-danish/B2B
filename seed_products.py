@@ -22,8 +22,6 @@ cursor.execute("""
         )
         """)
 
-# Wipe existing products (optional: so catalog always matches products.json)
-
 # Insert products
 for p in products:
     cursor.execute("""

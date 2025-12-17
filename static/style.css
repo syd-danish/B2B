@@ -241,3 +241,127 @@ body {
         .text-muted {
             color: #8bb899 !important;
         }
+        .badge {
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+/* Enhanced List Group Item Styling */
+.list-group-item {
+    background: linear-gradient(145deg, #345c46, #2b4a38);
+    color: #f3f8f5;
+    border: 1px solid #4a7c59;
+    border-radius: 10px;
+    padding: 20px 25px;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* Subtle hover lift */
+.list-group-item:hover {
+    transform: translateY(-3px);
+    border-color: #6ba581;
+    box-shadow: 0 6px 14px rgba(107, 165, 129, 0.25);
+}
+
+/* Title/Header inside list items */
+.list-group-item h4, .list-group-item h5 {
+    color: #b7e2c8;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.list-group-item small {
+    color: #a8d5ba;
+}
+
+.list-group-item p {
+    color: #d2e6d8;
+    margin-bottom: 8px;
+}
+
+/* Buttons inside the list group items */
+.list-group-item .btn {
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.25s ease;
+}
+
+.list-group-item .btn-danger {
+    background-color: #c94242;
+    border-color: #c94242;
+}
+
+.list-group-item .btn-danger:hover {
+    background-color: #a33030;
+    border-color: #a33030;
+}
+
+.list-group-item .btn-info {
+    background-color: #4c92c3;
+    border-color: #4c92c3;
+    color: white;
+}
+
+.list-group-item .btn-info:hover {
+    background-color: #3d7da7;
+}
+
+.list-group-item .btn-primary {
+    background-color: #4a7c59;
+    border-color: #4a7c59;
+    color: #fff;
+}
+
+.list-group-item .btn-primary:hover {
+    background-color: #6ba581;
+    border-color: #6ba581;
+    color: #1a2b1f;
+}
+
+.list-group-item .btn-success {
+    background-color: #3fa66b;
+    border-color: #3fa66b;
+}
+
+.list-group-item .btn-success:hover {
+    background-color: #59c283;
+    border-color: #59c283;
+}
+
+/* Timestamp alignment */
+.list-group-item small {
+    font-size: 0.9rem;
+    opacity: 0.85;
+}
+
+/* Image previews (attachments, products) */
+.list-group-item img {
+    border-radius: 6px;
+    border: 1px solid #4a7c59;
+    background-color: #2a3b2f;
+    margin-top: 10px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.list-group-item img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(107, 165, 129, 0.4);
+}
+
+/* Section Headings */
+.section h2 {
+    color: #c8f0da;
+    border-bottom: 2px solid #4a7c59;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+/* General list group container improvements */
+.list-group {
+    border-radius: 12px;
+    gap: 1rem;
+}
