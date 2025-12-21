@@ -306,7 +306,7 @@ def send_email(receiver, content, subject="Elfit Arabia Login OTP"):
     msg["From"] = sender
     msg["To"] = receiver
     try:
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=10) as server:
             server.login(sender, password)
             server.send_message(msg)
     except smtplib.SMTPAuthenticationError:
@@ -997,7 +997,7 @@ def place_order():
     msg["From"] = email_user
     msg["To"] = admin_email
     try:
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+        with smtplib.SMTP("smtp.gmail.com", 587, timeout=10) as server:
             server.starttls()
             server.login(email_user, email_pass)
             server.send_message(msg)
@@ -1219,7 +1219,7 @@ def dispatch_order(order_id):
     Elfit Arabia Team"""
     msg.attach(MIMEText(email_body, "plain"))
     try:
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+        with smtplib.SMTP("smtp.gmail.com", 587, timeout=10) as server:
             server.starttls()
             server.login(email_user, email_pass)
             server.send_message(msg)
@@ -1305,7 +1305,7 @@ Elfit Arabia Team\n"""
 
     try:
         # Send email
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+        with smtplib.SMTP("smtp.gmail.com", 587, timeout=10) as server:
             server.starttls()
             server.login(email_user, email_pass)
             server.send_message(msg)
