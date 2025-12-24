@@ -1,7 +1,12 @@
+
+import os
+#os.environ['REQUESTS_CA_BUNDLE'] = os.path.join(os.path.dirname(__file__), 'cacert.pem')
 from flask import (Flask, render_template, request,
                    flash, session, redirect,
                    url_for, jsonify)
-import sqlite3, random, smtplib, os, json, re
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail, Attachment, FileContent, FileName, FileType, Disposition
+import sqlite3, random, smtplib, json, re, ssl, certifi, base64
 from email.mime.text import MIMEText
 from dotenv import load_dotenv
 from urllib.parse import quote
@@ -10,10 +15,10 @@ from zoneinfo import ZoneInfo
 from werkzeug.utils import secure_filename
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
+
 load_dotenv()
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_APP_SECRET_KEY", "dev-secret-key")
 INSTANCE_DIR = os.path.join(BASE_DIR, "instance")
@@ -296,42 +301,50 @@ def is_authorized_client(email):
     return result is not None or email in AUTHORIZED_CLIENTS
 
 def send_email(receiver, content, subject="Elfit Arabia Login OTP"):
-    """Send email with customizable content"""
-    sender = os.getenv('SENDER_GMAIL_ADDRS')
-    password = os.getenv('GMAIL_APP_PASSWORD_1')
-    if not sender or not password:
-        raise Exception("Missing Gmail credentials in .env")
-    msg = MIMEText(content)
-    msg["Subject"] = subject
-    msg["From"] = sender
-    msg["To"] = receiver
+    api_key = os.getenv("SENDGRID_API_KEY")
+    sender = os.getenv("SENDER_GMAIL_ADDRS")
+
+    if not api_key or not sender:
+        raise Exception("Missing SendGrid credentials")
+
     try:
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=10) as server:
-            server.login(sender, password)
-            server.send_message(msg)
-    except smtplib.SMTPAuthenticationError:
-        raise Exception("Failed to authenticate with Gmail. Check your email and App Password.")
+        message = Mail(
+            from_email=sender,
+            to_emails=receiver,
+            subject=subject,
+            html_content=content.replace("\n", "<br>")
+        )
+
+        ssl_context = ssl.create_default_context(cafile=certifi.where())
+        sg = SendGridAPIClient(api_key)
+        #, ssl_context=ssl_context)
+        sg.send(message)
+
     except Exception as e:
-        raise Exception(f"Failed to send email: {str(e)}")
+        raise Exception(f"Failed to send email via SendGrid: {str(e)}")
 
 
 def send_otp_email(receiver, otp):
     """Send OTP email"""
-    content = f"Your OTP for Elfit Arabia B2B Portal is: {otp}\n\nThis OTP is valid for 10 minutes."
-    send_email(receiver, content, "Elfit Arabia Login OTP")
+    content = f"""
+    <p>Your OTP for <strong>Elfit Arabia B2B Portal</strong> is:</p>
+    <h2>{otp}</h2>
+    <p>This OTP is valid for <strong>10 minutes</strong>.</p>
+    """
 
+    send_email(receiver, content, "Elfit Arabia Login OTP")
 
 def send_access_denied_email(receiver):
     """Send access denied email"""
-    content = """Access Request Denied
+    content = """
+    <h3>Access Request Denied</h3>
+    <p>Your request to access the <strong>Elfit Arabia B2B Portal</strong> has been denied.</p>
+    <p>This portal is restricted to authorized personnel only.</p>
+    <p>If you believe this is an error, please contact our support team.</p>
+    <br>
+    <p>Best regards,<br><strong>Elfit Arabia Team</strong></p>
+    """
 
-Your request to access the Elfit Arabia B2B Portal has been denied. 
-This portal is restricted to authorized personnel only.
-
-If you believe this is an error, please contact our support team.
-
-Best regards,
-Elfit Arabia Team"""
     send_email(receiver, content, "Elfit Arabia - Access Denied")
 
 
@@ -934,7 +947,6 @@ def inject_unread_count():
             unread_count = get_unread_message_count(user_email)
     return dict(unread_count=unread_count)
 
-datetime.now
 @app.route("/api/unread-count")
 def api_unread_count():
     if not session.get("authenticated"):
@@ -990,22 +1002,30 @@ def place_order():
     Ordered by: {user_email}
     """
     admin_email = os.getenv("ADMIN_EMAIL")
-    email_user = os.getenv("SENDER_GMAIL_ADDRS")
-    email_pass = os.getenv("GMAIL_APP_PASSWORD_1")
-    msg = MIMEText(body)
-    msg["Subject"] = subject
-    msg["From"] = email_user
-    msg["To"] = admin_email
-    try:
-        with smtplib.SMTP("smtp.gmail.com", 587, timeout=10) as server:
-            server.starttls()
-            server.login(email_user, email_pass)
-            server.send_message(msg)
-            flash("Order placed successfully!", "success")
-    except Exception as e:
-        app.logger.error("Error sending order email: %s", e)
-        flash("Order saved but email notification failed (check logs).", "warning")
+    from_email = os.getenv("SENDER_GMAIL_ADDRS")
+    sendgrid_key = os.getenv("SENDGRID_API_KEY")
+    if not admin_email or not from_email or not sendgrid_key:
+        flash("Order saved but email configuration is missing.", "warning")
         return redirect(url_for("dashboard"))
+
+    try:
+        message = Mail(
+            from_email=from_email,
+            to_emails=admin_email,
+            subject=subject,
+            plain_text_content=body
+        )
+
+        sg = SendGridAPIClient(sendgrid_key)
+        response = sg.send(message)
+
+        if response.status_code not in (200, 202):
+            raise Exception(f"SendGrid error: {response.status_code}")
+
+        flash("Order placed successfully!", "success")
+    except Exception as e:
+        app.logger.error("Error sending order email via SendGrid: %s", e)
+        flash("Order saved but email notification failed (check logs).", "warning")
     return redirect(url_for("dashboard"))
 
 @app.route("/dashboard")
@@ -1105,155 +1125,240 @@ def send_quotation():
     if not session.get("authenticated") or not session.get("is_admin"):
         flash("Admin access required", "danger")
         return redirect(url_for("login"))
-    order_id = request.form.get("id","").strip()
-    client_email = request.form.get("user_email","").strip()
-    message_body = request.form["message"]
+
+    order_id = request.form.get("id", "").strip()
+    client_email = request.form.get("user_email", "").strip()
+    message_body = request.form.get("message", "")
     attachment = request.files.get("attachment")
-    print("=== FORM DEBUG ===")
-    print("Request method:", request.method)
-    print("All form data:", dict(request.form))
-    print("All form keys:", list(request.form.keys()))
-    print("=== END DEBUG ===")
+
     if not client_email or not order_id:
         flash("Missing recipient information.", "danger")
         return redirect(url_for("client_orders"))
+
+    # =========================
+    # FETCH ORDER DETAILS
+    # =========================
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
     cursor.execute("SELECT product_name, quantity FROM orders WHERE id = ?", (order_id,))
     order_row = cursor.fetchone()
-    order_name = order_row[0] if order_row else None
-    order_quantity = order_row[1] if order_row else None
-    conn.close()
-    email_user = os.getenv("SENDER_GMAIL_ADDRS")
-    email_pass = os.getenv("GMAIL_APP_PASSWORD_1")
-    msg = MIMEMultipart()
-    msg["Subject"] = f"Quotation for Order #{order_id}: {order_name} ({order_quantity})"
-    msg["From"] = email_user
-    msg["To"] = client_email
-    msg.attach(MIMEText(message_body, "plain"))
+
+    order_name = order_row[0] if order_row else "Unknown Product"
+    order_quantity = order_row[1] if order_row else "N/A"
+
+    # =========================
+    # PREPARE SENDGRID EMAIL
+    # =========================
+    sendgrid_api_key = os.getenv("SENDGRID_API_KEY")
+    from_email = os.getenv("ADMIN_EMAIL")
+
+    html_content = f"""
+    <div style="font-family:Arial; max-width:600px;">
+        <h2>Quotation for Your Order</h2>
+        <p><strong>Order ID:</strong> #{order_id}</p>
+        <p><strong>Product:</strong> {order_name}</p>
+        <p><strong>Quantity:</strong> {order_quantity}</p>
+
+        <hr>
+        <p>{message_body.replace(chr(10), '<br>')}</p>
+
+        <hr>
+        <small>
+            Elfit Arabia<br>
+            B2B Procurement Platform<br>
+            Please do not reply to this email
+        </small>
+    </div>
+    """
+
+    mail = Mail(
+        from_email=from_email,
+        to_emails=client_email,
+        subject=f"Quotation for Order #{order_id}: {order_name} ({order_quantity})",
+        html_content=html_content
+    )
+
     attachment_name = None
+
+    # =========================
+    # HANDLE ATTACHMENT
+    # =========================
     if attachment and attachment.filename:
-        attachment_name = attachment.filename
-        filepath = os.path.join(UPLOAD_FOLDER, attachment_name)
-        attachment.save(filepath)
-        file_data = open(filepath, "rb").read()
-        part = MIMEApplication(file_data, Name=attachment_name)
-        part["Content-Disposition"] = f'attachment; filename="{attachment_name}"'
-        msg.attach(part)
+        attachment_name = secure_filename(attachment.filename)
+        #file_bytes = attachment.read()
+        upload_path = os.path.join("static/uploads", attachment_name)
+        os.makedirs("static/uploads", exist_ok=True)
+
+        # 🔥 Save file so website can render it
+        attachment.save(upload_path)
+
+        with open(upload_path, "rb") as f:
+            encoded_file = base64.b64encode(f.read()).decode()
+
+        sg_attachment = Attachment(
+            FileContent(encoded_file),
+            FileName(attachment_name),
+            FileType(attachment.content_type or "application/octet-stream"),
+            Disposition("attachment")
+        )
+        mail.add_attachment(sg_attachment)
+
+    # =========================
+    # SEND EMAIL
+    # =========================
     try:
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
-            server.starttls()
-            server.login(email_user, email_pass)
-            server.send_message(msg)
-        conn = sqlite3.connect(DATABASE)
-        cursor = conn.cursor()
+        sg = SendGridAPIClient(sendgrid_api_key)
+        sg.send(mail)
+
+        # =========================
+        # SAVE MESSAGE + UPDATE ORDER
+        # =========================
         cursor.execute("""
-                    INSERT INTO messages (order_id, user_email, subject, body, attachment_name,
-                    order_name, order_quantity)
-                    VALUES (?, ?, ?, ?, ?,?,?)
-                """, (
+            INSERT INTO messages (
+                order_id, user_email, subject, body,
+                attachment_name, order_name, order_quantity,
+                created_at, is_read
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), 0)
+        """, (
             order_id,
             client_email,
             f"Quotation for Order #{order_id}",
             message_body,
-            attachment.filename if attachment and attachment.filename else None,
+            attachment_name,
             order_name,
             order_quantity
         ))
+
         cursor.execute("""
-                    UPDATE orders 
-                    SET status = 'quote sent', last_updated = datetime('now', '+4 hours') 
-                    WHERE id = ?
-                """, (order_id,))
+            UPDATE orders
+            SET status = 'quote sent',
+                last_updated = datetime('now', '+4 hours')
+            WHERE id = ?
+        """, (order_id,))
+
         conn.commit()
-        conn.close()
-        flash(f"Quotation sent to {client_email}", "success")
+        flash(f"Quotation sent successfully to {client_email}", "success")
+
     except Exception as e:
-        app.logger.error("Error sending quotation: %s", e)
-        flash("Failed to send quotation. Check server logs.", "danger")
+        conn.rollback()
+        app.logger.error("SendGrid quotation error: %s", e)
+        flash("Failed to send quotation email.", "danger")
+
+    finally:
+        conn.close()
+
     return redirect(url_for("client_orders"))
 
 
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 
 @app.route("/admin/dispatch-order/<int:order_id>", methods=["POST"])
 def dispatch_order(order_id):
     if not session.get("authenticated") or not session.get("is_admin"):
         flash("Admin access required", "danger")
         return redirect(url_for("login"))
+
+    # =========================
+    # FETCH ORDER
+    # =========================
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
+
     cursor.execute("""
-            SELECT id, user_email, product_name, quantity
-            FROM orders 
-            WHERE id = ?
-        """, (order_id,))
+        SELECT id, user_email, product_name, quantity
+        FROM orders
+        WHERE id = ?
+    """, (order_id,))
     order = cursor.fetchone()
-    conn.close()
 
     if not order:
+        conn.close()
         flash("Order not found", "danger")
         return redirect(url_for("admin_dashboard"))
-    order_id = order[0]
-    client_email = order[1]
-    product_name = order[2]
-    quantity = order[3]
 
-    email_user = os.getenv("SENDER_GMAIL_ADDRS")
-    email_pass = os.getenv("GMAIL_APP_PASSWORD_1")
+    order_id, client_email, product_name, quantity = order
 
-    msg = MIMEMultipart()
-    msg["Subject"] = f"Order Dispatched - Order #{order_id}: {product_name}"
-    msg["From"] = email_user
-    msg["To"] = client_email
-    email_body = f"""Dear Customer,
+    # =========================
+    # EMAIL CONTENT
+    # =========================
+    html_content = f"""
+    <div style="font-family:Arial; max-width:600px;">
+        <h2>Your Order Has Been Dispatched 🚚</h2>
 
-    Good news! Your order has been dispatched.
+        <p>Good news! Your order has been dispatched and is on its way.</p>
 
-    Order Details:
-    - Order ID: #{order_id}
-    - Product: {product_name}
-    - Quantity: {quantity}
-    Your order is on its way and should arrive by the expected delivery date.
-    If you have any questions, please don't hesitate to contact us.
-    Best regards,
-    Elfit Arabia Team"""
-    msg.attach(MIMEText(email_body, "plain"))
+        <hr>
+
+        <p><strong>Order ID:</strong> #{order_id}</p>
+        <p><strong>Product:</strong> {product_name}</p>
+        <p><strong>Quantity:</strong> {quantity}</p>
+
+        <hr>
+
+        <p>
+            If you have any questions, feel free to contact us.
+        </p>
+
+        <small>
+            Elfit Arabia<br>
+            B2B Procurement Platform
+        </small>
+    </div>
+    """
+    mail = Mail(
+        from_email=os.getenv("ADMIN_EMAIL"),
+        to_emails=client_email,
+        subject=f"Order Dispatched – Order #{order_id}: {product_name}",
+        html_content=html_content
+    )
     try:
-        with smtplib.SMTP("smtp.gmail.com", 587, timeout=10) as server:
-            server.starttls()
-            server.login(email_user, email_pass)
-            server.send_message(msg)
-        conn = sqlite3.connect(DATABASE)
-        cursor = conn.cursor()
+        sg = SendGridAPIClient(os.getenv("SENDGRID_API_KEY"))
+        sg.send(mail)
+
         cursor.execute("""
-                INSERT INTO messages (order_id, user_email, subject, body, attachment_name,
-                order_name, order_quantity, is_read)
-                VALUES (?, ?, ?, ?, ?, ?, ?, 0)
-            """, (
+            INSERT INTO messages (
+                order_id, user_email, subject, body,
+                attachment_name, order_name, order_quantity,
+                created_at, is_read
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), 0)
+        """, (
             order_id,
             client_email,
-            f"Order Dispatched - Order #{order_id}",
-            email_body,
-            None,  # No attachment for dispatch notification
+            f"Order Dispatched – Order #{order_id}",
+            f"Your order #{order_id} has been dispatched.",
+            None,
             product_name,
             quantity
         ))
-        # Update order status to "dispatched"
+
         cursor.execute("""
-                UPDATE orders 
-                SET status = 'dispatched' ,  last_updated = datetime('now', '+4 hours')
-                WHERE id = ?
-            """, (order_id,))
+            UPDATE orders
+            SET status = 'dispatched',
+                last_updated = datetime('now', '+4 hours')
+            WHERE id = ?
+        """, (order_id,))
 
         conn.commit()
+        flash(
+            f"Dispatch notification sent to {client_email} and order marked as dispatched",
+            "success"
+        )
+
+    except Exception as e:
+        conn.rollback()
+        app.logger.error("SendGrid dispatch error: %s", e)
+        flash("Failed to send dispatch notification.", "danger")
+
+    finally:
         conn.close()
 
-        flash(f"Dispatch notification sent to {client_email} and status updated to 'Dispatched'", "success")
-    except Exception as e:
-        app.logger.error("Error sending dispatch notification: %s", e)
-        flash("Failed to send dispatch notification. Check server logs.", "danger")
     return redirect(url_for("client_orders"))
 
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 
 @app.route("/admin/mark-delivered/<int:order_id>", methods=["POST"])
 def mark_delivered(order_id):
@@ -1261,86 +1366,111 @@ def mark_delivered(order_id):
         flash("Admin access required", "danger")
         return redirect(url_for("login"))
 
-    # Get order details from database
+    # =========================
+    # FETCH ORDER
+    # =========================
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
+
     cursor.execute("""
         SELECT id, user_email, product_name, quantity
-        FROM orders 
+        FROM orders
         WHERE id = ?
     """, (order_id,))
     order = cursor.fetchone()
-    conn.close()
 
     if not order:
+        conn.close()
         flash("Order not found", "danger")
         return redirect(url_for("admin_dashboard"))
 
-    order_id = order[0]
-    client_email = order[1]
-    product_name = order[2]
-    quantity = order[3]
-    # Prepare email
-    email_user = os.getenv("SENDER_GMAIL_ADDRS")
-    email_pass = os.getenv("GMAIL_APP_PASSWORD_1")
-    msg = MIMEMultipart()
-    msg["Subject"] = f"Order Delivered - Order #{order_id}: {product_name}"
-    msg["From"] = email_user
-    msg["To"] = client_email
-    # Email body
-    email_body = f"""Dear Customer,
+    order_id, client_email, product_name, quantity = order
 
-Your order has been successfully delivered!\n
+    # =========================
+    # EMAIL CONTENT
+    # =========================
+    html_content = f"""
+    <div style="font-family:Arial; max-width:600px;">
+        <h2>✅ Order Delivered Successfully</h2>
 
-Order Details:\n
-- Order ID: #{order_id}\n
-- Product: {product_name}\n
-- Quantity: {quantity}\n
-Thank you for choosing Elfit Arabia. We hope you're satisfied with your purchase.\n
-If you have any questions or concerns about your order, please don't hesitate to contact us.\n
-Best regards,\n
-Elfit Arabia Team\n"""
+        <p>
+            We’re happy to inform you that your order has been successfully delivered.
+        </p>
 
-    msg.attach(MIMEText(email_body, "plain"))
+        <hr>
 
+        <p><strong>Order ID:</strong> #{order_id}</p>
+        <p><strong>Product:</strong> {product_name}</p>
+        <p><strong>Quantity:</strong> {quantity}</p>
+
+        <hr>
+
+        <p>
+            Thank you for choosing <strong>Elfit Arabia</strong>.
+            We hope you’re satisfied with your purchase.
+        </p>
+
+        <small>
+            Elfit Arabia<br>
+            B2B Procurement Platform
+        </small>
+    </div>
+    """
+
+    mail = Mail(
+        from_email=os.getenv("ADMIN_EMAIL"),
+        to_emails=client_email,
+        subject=f"Order Delivered – Order #{order_id}: {product_name}",
+        html_content=html_content
+    )
+
+    # =========================
+    # SEND EMAIL + UPDATE DB
+    # =========================
     try:
-        # Send email
-        with smtplib.SMTP("smtp.gmail.com", 587, timeout=10) as server:
-            server.starttls()
-            server.login(email_user, email_pass)
-            server.send_message(msg)
+        sg = SendGridAPIClient(os.getenv("SENDGRID_API_KEY"))
+        sg.send(mail)
 
-        # Save to messages table and update order status
-        conn = sqlite3.connect(DATABASE)
-        cursor = conn.cursor()
-
-        # Insert delivery confirmation message
         cursor.execute("""
-            INSERT INTO messages (order_id, user_email, subject, body, attachment_name,
-            order_name, order_quantity, is_read)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 0)
+            INSERT INTO messages (
+                order_id, user_email, subject, body,
+                attachment_name, order_name, order_quantity,
+                created_at, is_read
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), 0)
         """, (
             order_id,
             client_email,
-            f"Order Delivered - Order #{order_id}",
-            email_body,
-            None,  # No attachment for delivery notification
+            f"Order Delivered – Order #{order_id}",
+            f"Your order #{order_id} has been delivered successfully.",
+            None,
             product_name,
             quantity
         ))
-        # Update order status to "delivered"
+
         cursor.execute("""
-            UPDATE orders 
-            SET status = 'delivered' ,  last_updated = datetime('now', '+4 hours')
+            UPDATE orders
+            SET status = 'delivered',
+                last_updated = datetime('now', '+4 hours')
             WHERE id = ?
         """, (order_id,))
+
         conn.commit()
-        conn.close()
-        flash(f"Delivery confirmation sent to {client_email} and status updated to 'Delivered'", "success")
+        flash(
+            f"Delivery confirmation sent to {client_email} and order marked as delivered",
+            "success"
+        )
+
     except Exception as e:
-        app.logger.error("Error sending delivery confirmation: %s", e)
-        flash("Failed to send delivery confirmation. Check server logs.", "danger")
+        conn.rollback()
+        app.logger.error("SendGrid delivery error: %s", e)
+        flash("Failed to send delivery confirmation.", "danger")
+
+    finally:
+        conn.close()
+
     return redirect(url_for("client_orders"))
+
 
 @app.route("/cancel-order/<int:message_id>", methods=["POST"])
 def cancel_order(message_id):
@@ -1427,49 +1557,77 @@ def finalize_order(message_id):
         order_quantity=msg[7]
         order_id=msg[1]
         try:
-            msg_out = MIMEMultipart()
-            msg_out["From"] = os.getenv('SENDER_GMAIL_ADDRS')
-            msg_out["To"] = os.getenv('ADMIN_EMAIL')
-            msg_out["Subject"] = f"New Order Confirmation - {order_name} ({order_quantity})"
-            text=f"""
-Hello Admin,
+            admin_email = os.getenv("ADMIN_EMAIL")
+            from_email = os.getenv("ADMIN_EMAIL")
+            sendgrid_api_key = os.getenv("SENDGRID_API_KEY")
 
-Client {user_email} has confirmed an order.
-The Order: {order_name} 
-Order Quantity: {order_quantity} 
-The Quotation sent: '{quotation}'
-Placed at: {datetime.now()}
-- Elfit Arabia System          
-"""
-            msg_out.attach(MIMEText(text, "plain"))
-            with smtplib.SMTP("smtp.gmail.com", 587) as server:
-                server.starttls()
-                server.login(os.getenv("SENDER_GMAIL_ADDRS"), os.getenv("GMAIL_APP_PASSWORD_1"))
-                server.sendmail(os.getenv("SENDER_GMAIL_ADDRS"), os.getenv("ADMIN_EMAIL"), msg_out.as_string())
+            admin_email_content = f"""
+                    <div style="font-family:Arial; max-width:600px;">
+                        <h2>New Order Confirmation</h2>
+                        <p><strong>Client:</strong> {user_email}</p>
+                        <p><strong>Product:</strong> {order_name}</p>
+                        <p><strong>Quantity:</strong> {order_quantity}</p>
+                        <p><strong>Quotation:</strong> {quotation}</p>
+                        <p><strong>Placed at:</strong> {datetime.now().strftime('%Y-%m-%d %H:%M')}</p>
+                        <hr>
+                        <small>
+                            Elfit Arabia<br>
+                            B2B Procurement Platform<br>
+                            support@elfitarabia.com
+                        </small>
+                    </div>
+                    """
+
+            admin_message = Mail(
+                from_email=from_email,
+                to_emails=admin_email,
+                subject=f"New Order Confirmation - {order_name} ({order_quantity})",
+                html_content=admin_email_content
+            )
+
+            sg = SendGridAPIClient(sendgrid_api_key)
+            sg.send(admin_message)
+
+            # =========================
+            # UPDATE ORDER STATUS
+            # =========================
             cursor.execute("""
-                            UPDATE orders 
-                            SET status = ? ,  last_updated = datetime('now', '+4 hours')
-                            WHERE product_name = ? AND user_email = ?
-                        """, ("order placed", order_name, user_email))
-            subject = f"Place Order Confirmed - Order #{order_id if order_id else 'N/A'}"
+                           UPDATE orders
+                           SET status       = ?,
+                               last_updated = datetime('now', '+4 hours')
+                           WHERE product_name = ?
+                             AND user_email = ?
+                           """, ("order placed", order_name, user_email))
+
+            # =========================
+            # SEND CONFIRMATION MESSAGE TO USER (INBOX MESSAGE)
+            # =========================
+            subject = f"Order Confirmed - Order #{order_id if order_id else 'N/A'}"
             body = f"Your order '{order_name}' ({order_quantity}) has been confirmed successfully."
+
             cursor.execute("""
-                            INSERT INTO messages (order_id, subject, body, attachment_name, order_name, order_quantity, user_email, created_at, is_read)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), 0)
-                        """, (
-                order_id,
-                subject,
-                body,
-                None,  # no attachment
-                order_name,
-                order_quantity,
-                user_email
-            ))
+                           INSERT INTO messages (order_id, subject, body, attachment_name,
+                                                 order_name, order_quantity, user_email,
+                                                 created_at, is_read)
+                           VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), 0)
+                           """, (
+                               order_id,
+                               subject,
+                               body,
+                               None,
+                               order_name,
+                               order_quantity,
+                               user_email
+                           ))
             conn.commit()
+            flash("Order confirmed and email sent successfully!", "success")
         except Exception as e:
-            flash(f"Email failed to send: {str(e)}")
-    else:
-        flash("order does not exist anymore")
+            conn.rollback()
+            app.logger.error("SendGrid error: %s", e)
+            flash("Order confirmed but email failed to send.", "warning")
+        finally:
+            conn.close()
+
     return redirect(url_for("my_messages"))
 
 @app.route("/contact-us")
