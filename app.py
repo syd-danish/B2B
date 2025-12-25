@@ -1,20 +1,16 @@
 
-import os
-#os.environ['REQUESTS_CA_BUNDLE'] = os.path.join(os.path.dirname(__file__), 'cacert.pem')
 from flask import (Flask, render_template, request,
                    flash, session, redirect,
                    url_for, jsonify)
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Attachment, FileContent, FileName, FileType, Disposition
-import sqlite3, random, smtplib, json, re, ssl, certifi, base64
-from email.mime.text import MIMEText
+import sqlite3, random, smtplib, json, re, ssl, certifi, base64,os
 from dotenv import load_dotenv
 from urllib.parse import quote
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from werkzeug.utils import secure_filename
-from email.mime.multipart import MIMEMultipart
-from email.mime.application import MIMEApplication
+
 
 load_dotenv()
 
@@ -319,6 +315,8 @@ def send_email(receiver, content, subject="Elfit Arabia Login OTP"):
         sg = SendGridAPIClient(api_key)
         #, ssl_context=ssl_context)
         sg.send(message)
+        print("SENDGRID_API_KEY exists:", bool(os.getenv("SENDGRID_API_KEY")))
+        print("ADMIN_EMAIL:", os.getenv("ADMIN_EMAIL"))
 
     except Exception as e:
         raise Exception(f"Failed to send email via SendGrid: {str(e)}")
@@ -1185,34 +1183,24 @@ def send_quotation():
     # =========================
     if attachment and attachment.filename:
         attachment_name = secure_filename(attachment.filename)
-        #file_bytes = attachment.read()
-        upload_path = os.path.join("static/uploads", attachment_name)
-        os.makedirs("static/uploads", exist_ok=True)
-
-        # 🔥 Save file so website can render it
-        attachment.save(upload_path)
-
-        with open(upload_path, "rb") as f:
+        upload_dir = os.path.join("static", "uploads", "products")
+        os.makedirs(upload_dir, exist_ok=True)
+        file_path = os.path.join(upload_dir, attachment_name)
+        # 1️⃣ SAVE for website rendering
+        attachment.save(file_path)
+        # 2️⃣ READ for SendGrid email
+        with open(file_path, "rb") as f:
             encoded_file = base64.b64encode(f.read()).decode()
-
         sg_attachment = Attachment(
             FileContent(encoded_file),
             FileName(attachment_name),
-            FileType(attachment.content_type or "application/octet-stream"),
+            FileType(attachment.content_type),
             Disposition("attachment")
         )
         mail.add_attachment(sg_attachment)
-
-    # =========================
-    # SEND EMAIL
-    # =========================
     try:
         sg = SendGridAPIClient(sendgrid_api_key)
         sg.send(mail)
-
-        # =========================
-        # SAVE MESSAGE + UPDATE ORDER
-        # =========================
         cursor.execute("""
             INSERT INTO messages (
                 order_id, user_email, subject, body,
@@ -1229,7 +1217,6 @@ def send_quotation():
             order_name,
             order_quantity
         ))
-
         cursor.execute("""
             UPDATE orders
             SET status = 'quote sent',
@@ -1244,15 +1231,10 @@ def send_quotation():
         conn.rollback()
         app.logger.error("SendGrid quotation error: %s", e)
         flash("Failed to send quotation email.", "danger")
-
     finally:
         conn.close()
-
     return redirect(url_for("client_orders"))
 
-
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
 
 @app.route("/admin/dispatch-order/<int:order_id>", methods=["POST"])
 def dispatch_order(order_id):
@@ -1472,48 +1454,6 @@ def mark_delivered(order_id):
     return redirect(url_for("client_orders"))
 
 
-@app.route("/cancel-order/<int:message_id>", methods=["POST"])
-def cancel_order(message_id):
-    if not session.get("authenticated"):
-        flash("Please login first", "warning")
-        return redirect(url_for("login"))
-    conn = sqlite3.connect(DATABASE)
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
-    # Get message details
-    cursor.execute("SELECT * FROM messages WHERE id=?", (message_id,))
-    msg = cursor.fetchone()
-    if not msg:
-        flash("Message not found", "danger")
-        conn.close()
-        return redirect(url_for("my_messages"))
-    user_email = msg["user_email"]
-    order_name = msg["order_name"]
-    order_quantity = msg["order_quantity"]
-    # Insert cancellation message in messages
-    cursor.execute("""
-        INSERT INTO messages (user_email, subject, body, order_name, order_quantity, created_at, is_read)
-        VALUES (?, ?, ?, ?, ?, datetime('now'), 0)
-    """, (
-        user_email,
-        "Order Cancelled",
-        f"Your order '{order_name}' ({order_quantity}) has been cancelled by the client.",
-        order_name,
-        order_quantity
-    ))
-    cursor.execute("""
-        UPDATE orders 
-        SET status = 'cancelled' , last_updated = datetime('now', '+4 hours')
-        WHERE product_name = ? AND user_email = ?
-    """, (order_name, user_email))
-    conn.commit()
-    conn.close()
-    flash("Order has been cancelled", "success")
-    return redirect(url_for("my_messages"))
-
-
-
-
 @app.route("/my-messages")
 def my_messages():
     if not session.get("authenticated"):
@@ -1524,110 +1464,243 @@ def my_messages():
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
+
+    # Get messages with their corresponding order status
     cursor.execute("""
-        SELECT m.id, m.order_id, m.subject, m.body, m.attachment_name,
-               m.order_name, m.order_quantity, m.created_at, m.is_read,
-               o.status AS order_status
-        FROM messages m
-        LEFT JOIN orders o
-          ON m.order_name = o.product_name
-         AND m.user_email = o.user_email
-        WHERE m.user_email = ?
-        ORDER BY m.created_at DESC
-    """, (user_email,))
+                   SELECT m.id,
+                          m.order_id,
+                          m.subject,
+                          m.body,
+                          m.attachment_name,
+                          m.order_name,
+                          m.order_quantity,
+                          m.created_at,
+                          m.is_read,
+                          o.status AS order_status
+                   FROM messages m
+                            LEFT JOIN orders o ON m.order_id = o.id
+                   WHERE m.user_email = ?
+                   ORDER BY m.created_at DESC
+                   """, (user_email,))
+
     messages = cursor.fetchall()
+
+    # Mark all unread messages as read
     cursor.execute("""
-            UPDATE messages SET is_read = 1 
-            WHERE user_email = ? AND (is_read = 0 OR is_read IS NULL)
-        """, (user_email,))
+                   UPDATE messages
+                   SET is_read = 1
+                   WHERE user_email = ?
+                     AND (is_read = 0 OR is_read IS NULL)
+                   """, (user_email,))
+
     conn.commit()
     conn.close()
+
     return render_template("my_messages.html", messages=messages)
 
-@app.route("/place-order/<int:message_id>")
-def finalize_order(message_id):
-    conn = sqlite3.connect(DATABASE)
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM messages WHERE id=?", (message_id,))
-    msg = cursor.fetchone()
-    if msg:
-        user_email=msg[2]
-        quotation=msg[4]
-        order_name=msg[6]
-        order_quantity=msg[7]
-        order_id=msg[1]
-        try:
-            admin_email = os.getenv("ADMIN_EMAIL")
-            from_email = os.getenv("ADMIN_EMAIL")
-            sendgrid_api_key = os.getenv("SENDGRID_API_KEY")
 
+@app.route("/cancel-order/<int:order_id>", methods=["POST"])
+def cancel_order(order_id):
+    if not session.get("authenticated"):
+        flash("Please login first", "warning")
+        return redirect(url_for("login"))
+
+    user_email = session.get("user_email")
+
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    # Get order details and verify ownership
+    cursor.execute("""
+                   SELECT id, user_email, product_name, quantity, status
+                   FROM orders
+                   WHERE id = ?
+                   """, (order_id,))
+    order = cursor.fetchone()
+
+    if not order:
+        flash("Order not found", "danger")
+        conn.close()
+        return redirect(url_for("my_messages"))
+
+    # Verify the order belongs to the current user
+    if order["user_email"] != user_email:
+        flash("Unauthorized action", "danger")
+        conn.close()
+        return redirect(url_for("my_messages"))
+
+    # Check if order can be cancelled
+    if order["status"] in ["delivered", "dispatched", "cancelled"]:
+        flash(f"Cannot cancel order with status: {order['status']}", "warning")
+        conn.close()
+        return redirect(url_for("my_messages"))
+
+    order_name = order["product_name"]
+    order_quantity = order["quantity"]
+
+    try:
+        # Update order status to cancelled
+        cursor.execute("""
+                       UPDATE orders
+                       SET status       = 'cancelled',
+                           last_updated = datetime('now', '+4 hours')
+                       WHERE id = ?
+                       """, (order_id,))
+
+        # Send cancellation email to admin
+        admin_email = os.getenv("ADMIN_EMAIL")
+        from_email = os.getenv("ADMIN_EMAIL")
+
+        if admin_email and from_email:
+            cancel_content = f"""
+            <div style="font-family:Arial; max-width:600px;">
+                <h2 style="color: #dc3545;">Order Cancelled by Client</h2>
+                <p>A client has cancelled their order:</p>
+                <hr>
+                <p><strong>Order ID:</strong> #{order_id}</p>
+                <p><strong>Client Email:</strong> {user_email}</p>
+                <p><strong>Product:</strong> {order_name}</p>
+                <p><strong>Quantity:</strong> {order_quantity}</p>
+                <hr>
+                <small>
+                    Elfit Arabia B2B Portal<br>
+                    Automated Notification
+                </small>
+            </div>
+            """
+
+            try:
+                mail = Mail(
+                    from_email=from_email,
+                    to_emails=admin_email,
+                    subject=f"Order Cancelled - #{order_id}: {order_name}",
+                    html_content=cancel_content
+                )
+                sg = SendGridAPIClient(os.getenv("SENDGRID_API_KEY"))
+                sg.send(mail)
+            except Exception as e:
+                app.logger.error(f"Failed to send cancellation email: {e}")
+
+        conn.commit()
+        flash("Order cancelled successfully. Admin has been notified.", "success")
+
+    except Exception as e:
+        conn.rollback()
+        app.logger.error(f"Error cancelling order: {e}")
+        flash("Failed to cancel order. Please try again.", "danger")
+    finally:
+        conn.close()
+
+    return redirect(url_for("my_messages"))
+
+
+@app.route("/place-order/<int:order_id>")
+def finalize_order(order_id):
+    if not session.get("authenticated"):
+        flash("Please login first", "warning")
+        return redirect(url_for("login"))
+
+    user_email = session.get("user_email")
+
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    # Get the order details
+    cursor.execute("""
+                   SELECT id, product_name, quantity, user_email, status
+                   FROM orders
+                   WHERE id = ?
+                   """, (order_id,))
+    order = cursor.fetchone()
+
+    if not order:
+        flash("Order not found", "danger")
+        conn.close()
+        return redirect(url_for("my_messages"))
+
+    # Verify ownership
+    if order["user_email"] != user_email:
+        flash("Unauthorized action", "danger")
+        conn.close()
+        return redirect(url_for("my_messages"))
+
+    # Check if order can be placed
+    if order["status"] not in ["quote sent", "inquiry received"]:
+        flash(f"Cannot confirm order with current status: {order['status']}", "warning")
+        conn.close()
+        return redirect(url_for("my_messages"))
+
+    order_name = order["product_name"]
+    order_quantity = order["quantity"]
+
+    try:
+        # Update order status
+        cursor.execute("""
+                       UPDATE orders
+                       SET status       = 'order placed',
+                           last_updated = datetime('now', '+4 hours')
+                       WHERE id = ?
+                       """, (order_id,))
+
+        # Send confirmation email to admin
+        admin_email = os.getenv("ADMIN_EMAIL")
+        from_email = os.getenv("ADMIN_EMAIL")
+        sendgrid_api_key = os.getenv("SENDGRID_API_KEY")
+
+        if admin_email and from_email and sendgrid_api_key:
             admin_email_content = f"""
-                    <div style="font-family:Arial; max-width:600px;">
-                        <h2>New Order Confirmation</h2>
-                        <p><strong>Client:</strong> {user_email}</p>
-                        <p><strong>Product:</strong> {order_name}</p>
-                        <p><strong>Quantity:</strong> {order_quantity}</p>
-                        <p><strong>Quotation:</strong> {quotation}</p>
-                        <p><strong>Placed at:</strong> {datetime.now().strftime('%Y-%m-%d %H:%M')}</p>
-                        <hr>
-                        <small>
-                            Elfit Arabia<br>
-                            B2B Procurement Platform<br>
-                            support@elfitarabia.com
-                        </small>
-                    </div>
-                    """
+            <div style="font-family:Arial; max-width:600px;">
+                <h2 style="color: #198754;">✅ New Order Confirmation</h2>
+                <p>A client has confirmed their order:</p>
+                <hr>
+                <p><strong>Order ID:</strong> #{order_id}</p>
+                <p><strong>Client Email:</strong> {user_email}</p>
+                <p><strong>Product:</strong> {order_name}</p>
+                <p><strong>Quantity:</strong> {order_quantity}</p>
+                <p><strong>Confirmed at:</strong> {datetime.now(ZoneInfo("Asia/Dubai")).strftime('%Y-%m-%d %H:%M:%S')} UAE Time</p>
+                <hr>
+                <small>
+                    Elfit Arabia B2B Portal<br>
+                    Automated Notification
+                </small>
+            </div>
+            """
 
             admin_message = Mail(
                 from_email=from_email,
                 to_emails=admin_email,
-                subject=f"New Order Confirmation - {order_name} ({order_quantity})",
+                subject=f"✅ Order Confirmed - #{order_id}: {order_name}",
                 html_content=admin_email_content
             )
 
             sg = SendGridAPIClient(sendgrid_api_key)
             sg.send(admin_message)
 
-            # =========================
-            # UPDATE ORDER STATUS
-            # =========================
-            cursor.execute("""
-                           UPDATE orders
-                           SET status       = ?,
-                               last_updated = datetime('now', '+4 hours')
-                           WHERE product_name = ?
-                             AND user_email = ?
-                           """, ("order placed", order_name, user_email))
-
-            # =========================
-            # SEND CONFIRMATION MESSAGE TO USER (INBOX MESSAGE)
-            # =========================
-            subject = f"Order Confirmed - Order #{order_id if order_id else 'N/A'}"
-            body = f"Your order '{order_name}' ({order_quantity}) has been confirmed successfully."
-
-            cursor.execute("""
-                           INSERT INTO messages (order_id, subject, body, attachment_name,
-                                                 order_name, order_quantity, user_email,
-                                                 created_at, is_read)
-                           VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), 0)
-                           """, (
-                               order_id,
-                               subject,
-                               body,
-                               None,
-                               order_name,
-                               order_quantity,
-                               user_email
-                           ))
-            conn.commit()
-            flash("Order confirmed and email sent successfully!", "success")
-        except Exception as e:
-            conn.rollback()
-            app.logger.error("SendGrid error: %s", e)
-            flash("Order confirmed but email failed to send.", "warning")
-        finally:
-            conn.close()
-
+        # Insert confirmation message for the user
+        cursor.execute("""
+                       INSERT INTO messages (order_id, user_email, subject, body,
+                                             attachment_name, order_name, order_quantity,
+                                             created_at, is_read)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), 0)
+                       """, (
+                           order_id,
+                           user_email,
+                           f"Order Confirmed - #{order_id}",
+                           f"Your order for '{order_name}' ({order_quantity}) has been confirmed successfully. The admin has been notified and will process your order soon.",
+                           None,
+                           order_name,
+                           order_quantity
+                       ))
+        conn.commit()
+        flash("Order confirmed successfully! Admin has been notified.", "success")
+    except Exception as e:
+        conn.rollback()
+        app.logger.error(f"Error confirming order: {e}")
+        flash("Order status updated but notification may have failed.", "warning")
+    finally:
+        conn.close()
     return redirect(url_for("my_messages"))
 
 @app.route("/contact-us")
@@ -2036,15 +2109,11 @@ def get_timeline_orders(month):
         }
         for r in rows
     ]
-
     return jsonify(results)
-
-
 @app.route("/api/payment-status")
 def payment_status_api():
     conn = sqlite3.connect(DATABASE)
     cur = conn.cursor()
-
     cur.execute("""
         SELECT id, product_name, user_email, quantity, status,
                payment_status, created_at, last_updated
